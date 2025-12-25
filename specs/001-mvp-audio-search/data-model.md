@@ -79,20 +79,6 @@ Represents a folder created by a user to organize their audio files.
     -   Can have a parent `Folder`.
     -   Can have many child `Folder` records.
 
-## Entity: SharedSnippet
-
-Represents a shared link generated for a specific transcript segment.
-
--   **Fields**:
-    -   `id` (Primary Key, UUID): Unique identifier for the shared link.
-    -   `segment_id` (Foreign Key, UUID, Not Null): A reference to the `TranscriptSegment` being shared.
-    -   `share_token` (Text, Not Null, Unique): A unique token for the public URL.
-    -   `created_at` (Timestamp, Not Null): The date and time the link was created.
-    -   `expires_at` (Timestamp, Nullable): An optional expiration date for the link.
-
--   **Relationships**:
-    -   Belongs to one `TranscriptSegment`.
-
 ## Entity: UserSetting
 
 Stores key-value preferences for a user.
