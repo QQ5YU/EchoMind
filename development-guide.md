@@ -94,10 +94,16 @@ update specs
 
 ---
 
-## 3. Workflow Summary
+---
 
-1.  **Start**: Create a new branch: `git checkout -b feature/my-new-feature`.
-2.  **Work**: Make changes and test.
-3.  **Stage**: `git add <files>`.
-4.  **Commit**: `git commit` (This opens your editor. **DO NOT** use `git commit -m "title"` for complex changes. Write the full title and body in the editor).
-5.  **Push**: `git push origin feature/my-new-feature`.
+## 4. File Naming Convention
+
+To ensure consistency across the repository, we follow specific naming rules for files.
+
+### Documentation (Markdown)
+-   **Rule**: Use **lowercase kebab-case**.
+-   **Example**: `development-guide.md`, `api-endpoints.md`.
+-   **Exception**: Standard root files like `README.md` or `LICENSE` may remain uppercase as per platform standards.
+
+### Source Code
+-   Follow the conventions of the specific language/framework (e.g., camelCase for TS files, snake_case for Python).
