@@ -142,23 +142,6 @@ This document defines the RESTful API endpoints provided by the NestJS backend. 
         ]
         ```
 
-## Sharing (Protected)
-
-*All endpoints in this section require a valid JWT access token.*
-
-### `POST /share`
-
--   **Description**: Generates a shareable link for a transcript segment.
--   **Request Body**:
-    ```json
-    {
-      "segmentId": "transcript-segment-id",
-      "expiresIn": "7d" // Optional expiration
-    }
-    ```
--   **Response**: `201 Created`
-    -   **Body**: `{ "shareUrl": "https://yourapp.com/share/unique-token" }`
-
 ## Settings (Protected)
 
 *All endpoints in this section require a valid JWT access token.*

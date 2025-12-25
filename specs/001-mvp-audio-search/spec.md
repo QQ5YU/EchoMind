@@ -179,31 +179,30 @@ sequenceDiagram
 
 ---
 
-### User Story 6 - Export & Share Snippets (Priority: P4)
+### User Story 6 - Export Snippets to Text (Priority: P4)
 
-As a user, I want to select a portion of the transcript/audio and export or share it so I can use it in other contexts.
+As a user, I want to select a portion of the transcript/audio and export it as a text file so I can use it in other contexts.
 
-**Why this priority**: Sharing key moments from a recording is a primary use case.
+**Why this priority**: Exporting key moments from a recording is a primary use case, allowing users to easily transfer information.
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Client as Web Client (Frontend)
-    participant Backend as Backend Server
 
-    User->>Client: Selects a transcript segment and clicks "Share"
-    Client->>Backend: POST /share
-    Backend-->>Client: Returns a unique shareable link
-    Client->>User: Displays the shareable link
+    User->>Client: Selects a transcript segment
+    User->>Client: Clicks "Export"
+    Client->>User: Downloads a text file containing the selected transcript
 ```
 
-**Independent Test**: A user can select a part of a transcript, generate a shareable link, and another user can open that link to see the snippet.
+**Independent Test**: A user can select a part of a transcript and successfully download it as a text file.
 
 **Acceptance Scenarios**:
 
-1.  **Given** I am viewing a transcript, **When** I select a segment of text, **Then** an "Export" or "Share" option becomes available.
-2.  **Given** I have selected a segment, **When** I click "Share", **Then** a unique, shareable link is generated.
-3.  **Given** I have selected a segment, **When** I click "Export", **Then** a text file containing the selected transcript is downloaded.
+1.  **Given** I am viewing a transcript, **When** I select a segment of text, **Then** an "Export" option becomes available.
+2.  **Given** I have selected a segment, **When** I click "Export", **Then** a text file containing the selected transcript is downloaded to my local machine.
+
+*Note: In a future phase, consideration may be given to adding functionality for generating public, shareable links.*
 
 ---
 

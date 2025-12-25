@@ -1,4 +1,4 @@
-# Specification Quality Checklist: UI Enhancements for Settings, Sharing, and Uploads
+# Specification Quality Checklist: MVP Audio Search Feature
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2025-12-05

@@ -39,11 +39,6 @@
     -   **Layout Description**: A simple, form-based view, likely within a modal or a dedicated page. It would have sections for different settings. The "Transcription" section contains a label and a dropdown menu for "Default Language" and a "Save Changes" button.
     -   **Link to Mockup**: [Link to Figma/Sketch/Image file for Settings View]
 
--   **View**: Share Modal
-    -   **Reference**: Flow for File Sharing via Modal
-    -   **Layout Description**: This modal is accessible to authenticated users from the file management section. It overlays the main content area and features a prominent title ("Share File"), the file name, an input field displaying the shareable link (read-only), a "Copy Link" button, and a "Close" button. Error messages related to link generation or permissions appear within the modal.
-    -   **Link to Mockup**: [Link to Figma/Sketch/Image file for Share Modal]
-
 -   **View**: Public Share Page
     -   **Reference**: User Story 6 (Export & Share Snippets)
     -   **Layout Description**: A minimal, public-facing page that does not require login. It displays a single card containing the text of the shared `TranscriptSegment`, the name of the audio file it came from, and a simple audio player to play just that snippet.
@@ -57,7 +52,7 @@
 -   **Button (Primary)**
     -   **Appearance**: Solid background color, white text. Rounded corners.
     -   **States**: Default, Hover (slightly lighter), Pressed (slightly darker), Disabled (grayed out, no pointer).
-    -   **Usage**: "Login", "Register", "Upload".
+    -   **Usage**: "Login", "Register", "Upload", "Export".
 
 -   **Search Bar**
     -   **Appearance**: Pill-shaped input field with a magnifying glass icon.
@@ -178,21 +173,28 @@ graph TD
     H --> I[UI shows 'Settings saved!' confirmation toast];
 ```
 
-### Flow 6: File Sharing via Modal (Referencing `spec.md` User Story 2)
+### Flow 6: Export Transcript Segment (Referencing `spec.md` User Story 6)
 
-This flow illustrates how an authenticated user can share a file through a modal within the file management interface.
+This flow illustrates how a user exports a selected transcript segment as a text file.
 
 ```mermaid
 graph TD
-    A[Authenticated user is in File Management] --> B[User selects a file and clicks 'Share'];
-    B --> C[Share Modal appears, displaying file name];
-    C --> D[Modal automatically generates a shareable link];
-    D --> E[User clicks 'Copy Link' button];
-    E --> F[Link is copied to clipboard, UI shows 'Copied!' confirmation];
-    F --> G[User clicks 'Close' button or outside modal];
-    G --> H[Modal closes, user returns to File Management];
-    C -- Link generation fails --> I[Modal displays 'Error generating link. Please try again.'];
+    A[Authenticated user is in Playback View, viewing a transcript] --> B[User selects a transcript segment];
+    B --> C[An 'Export' button becomes available];
+    C --> D[User clicks 'Export' button];
+    D --> E[Client initiates download of a text file containing the selected segment];
+    E --> F[Download completes, UI may show a brief confirmation (e.g., "Exported successfully!")];
 ```
+
+## 5. Accessibility (A11y)
+
+-   **Keyboard Navigation**: All interactive elements including buttons, links, inputs, file cards, and transcript segments MUST be focusable and operable via the keyboard (Enter/Space). The focus order MUST be logical and follow the visual layout.
+-   **Screen Readers**:
+    -   All icons (e.g., status icons, menu icons) MUST have an `aria-label` or equivalent descriptive text.
+    -   The application's views MUST be structured with appropriate headings (`<h1>`, `<h2>`, etc.) to facilitate navigation.
+    -   The currently playing transcript segment should be announced to screen readers.
+-   **Color Contrast**: All text and UI elements MUST have a color contrast ratio that meets at least WCAG AA standards to ensure readability.
+-   **Forms**: All form inputs (e.g., Login, Search) MUST have associated labels.
 
 ## 5. Accessibility (A11y)
 
