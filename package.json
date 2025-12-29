@@ -1,0 +1,20 @@
+{
+  "name": "echomind",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "client:dev": "pnpm --filter desktop-client dev",
+    "client:build": "pnpm --filter desktop-client build",
+    "client:preview": "node simple_server.js"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "electron-builder",
+      "esbuild",
+      "electron-winstaller"
+    ]
+  }
+}
