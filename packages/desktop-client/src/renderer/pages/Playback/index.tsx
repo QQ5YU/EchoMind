@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { Layout } from '@shared/ui/Layout'
+import { UserMenu } from '@widgets/UserMenu'
 import { Button } from 'primereact/button'
-import { TranscriptViewer, TranscriptSegment } from '@features/playback/components/TranscriptViewer'
-import { AudioPlayer } from '@features/playback/components/AudioPlayer'
+import { TranscriptViewer, TranscriptSegment } from '@features/playback/ui/TranscriptViewer'
+import { AudioPlayer } from '@features/playback/ui/AudioPlayer'
 
 export const PlaybackPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -17,19 +18,19 @@ export const PlaybackPage: React.FC = () => {
   ]
 
   return (
-    <Layout>
+    <Layout headerRight={<UserMenu />}>
       <div className="flex flex-col h-full max-w-6xl mx-auto gap-6">
         <header className="flex items-center justify-between">
           <div>
             <Button 
               icon="pi pi-arrow-left" 
-              className="p-button-text mb-2" 
+              className="p-button-text mb-2 dark:text-gray-300" 
               label="Back to Files" 
               onClick={() => window.history.back()}
             />
-            <h1 className="text-2xl font-bold">Meeting_Notes_1.mp3</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Meeting_Notes_1.mp3</h1>
           </div>
-          <Button label="Export Transcript" icon="pi pi-download" severity="secondary" />
+          <Button label="Export Transcript" icon="pi pi-download" severity="secondary" className="dark:text-white" />
         </header>
 
         <div className="flex-1 flex gap-6 overflow-hidden">
