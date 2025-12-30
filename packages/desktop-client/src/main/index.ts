@@ -2,18 +2,16 @@ import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 
-if (process.platform === 'linux') {
-  app.commandLine.appendSwitch('no-sandbox')
-}
-
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1920,
+    height: 1080,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon: join(__dirname, '../../resources/icon.png') } : {}),
     webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     }
