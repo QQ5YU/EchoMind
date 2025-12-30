@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react'
 import { Layout } from '@shared/ui/Layout'
-import { DashboardSidebar } from '@features/dashboard/components/DashboardSidebar'
-import { InputText } from 'primereact/inputtext'
-import { Button } from 'primereact/button'
+import { Sidebar } from '@widgets/Sidebar'
+import { UserMenu } from '@widgets/UserMenu'
 import { Toast } from 'primereact/toast'
-import { Avatar } from 'primereact/avatar'
+import { ProfileAvatar } from './ui/ProfileAvatar'
+import { ProfileForm } from './ui/ProfileForm'
 
 export const ProfilePage: React.FC = () => {
   const [name, setName] = useState('John Doe')
@@ -16,34 +16,24 @@ export const ProfilePage: React.FC = () => {
   }
 
   return (
-    <Layout sidebar={<DashboardSidebar />}>
+    <Layout sidebar={<Sidebar />} headerRight={<UserMenu />}>
       <Toast ref={toast} />
       <div className="max-w-3xl mx-auto py-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-8">Account Settings</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-8">Account Settings</h1>
         
-        <div className="bg-white rounded-xl shadow-sm p-8 space-y-8">
-          <div className="flex items-center gap-6 mb-8">
-            <Avatar label="JD" size="xlarge" shape="circle" className="bg-indigo-100 text-indigo-700 w-24 h-24 text-2xl" />
-            <div>
-              <Button label="Change Avatar" className="p-button-text p-button-sm" />
-            </div>
-          </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 border border-transparent dark:border-gray-700">
+          <ProfileAvatar 
+            label="JD" 
+            onChange={() => console.log('Change avatar clicked')} 
+          />
 
-          <div className="grid gap-6">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-sm font-medium text-gray-600">Full Name</label>
-              <InputText id="name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-600">Email</label>
-              <InputText id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="pt-6 border-t flex justify-end">
-            <Button label="Save Changes" onClick={handleSave} />
-          </div>
+          <ProfileForm
+            name={name}
+            email={email}
+            onNameChange={setName}
+            onEmailChange={setEmail}
+            onSave={handleSave}
+          />
         </div>
       </div>
     </Layout>
