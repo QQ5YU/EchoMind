@@ -25,9 +25,9 @@ export const TranscriptionSettings: React.FC<TranscriptionSettingsProps> = ({ la
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Transcription</h2>
+      <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 border-b dark:border-gray-700 pb-2">Transcription</h2>
       <div className="flex flex-col gap-2 max-w-md">
-        <label htmlFor="language" className="text-sm font-medium text-gray-600">Default Language</label>
+        <label htmlFor="language" className="text-sm font-medium text-gray-600 dark:text-gray-300">Default Language</label>
         <Dropdown 
           id="language"
           value={language} 
@@ -36,7 +36,7 @@ export const TranscriptionSettings: React.FC<TranscriptionSettingsProps> = ({ la
           placeholder="Select a Language"
           className="w-full"
         />
-        <p className="text-xs text-gray-400 mt-1">This language will be used for all new transcriptions.</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">This language will be used for all new transcriptions.</p>
       </div>
     </section>
   )

@@ -28,17 +28,17 @@ export const CreateFolderDialog: React.FC<CreateFolderDialogProps> = ({
   };
 
   const footer = (
-    <div>
+    <div className="flex justify-end gap-2 pt-2">
       <Button
         label="Cancel"
-        icon="pi pi-times"
         onClick={onHide}
-        className="p-button-text"
+        className="p-button-text p-button-secondary dark:text-gray-400"
       />
       <Button
         label="Create"
         icon="pi pi-check"
         onClick={handleSubmit}
+        className="text-white"
         autoFocus
       />
     </div>
@@ -51,12 +51,18 @@ export const CreateFolderDialog: React.FC<CreateFolderDialogProps> = ({
       style={{ width: "30vw", minWidth: "400px" }}
       onHide={onHide}
       footer={footer}
+      className="dark:bg-gray-800"
+      pt={{
+        header: { className: 'dark:bg-gray-800 dark:text-white border-b dark:border-gray-700' },
+        content: { className: 'dark:bg-gray-800 dark:text-gray-300 py-6' },
+        footer: { className: 'dark:bg-gray-800 border-t dark:border-gray-700' }
+      }}
     >
       <div className="p-fluid">
         <div className="field">
           <label
             htmlFor="foldername"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
             Name
           </label>
