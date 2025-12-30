@@ -9,8 +9,10 @@ export default defineConfig({
     host: true,
     port: 5173,
     hmr: {
-      host: '0.0.0.0',
-      port: 5173
+      overlay: true
+    },
+    watch: {
+      usePolling: true
     }
   },
   resolve: {
@@ -20,6 +22,7 @@ export default defineConfig({
       '@pages': resolve(__dirname, 'src/renderer/pages'),
       '@features': resolve(__dirname, 'src/renderer/features'),
       '@entities': resolve(__dirname, 'src/renderer/entities'),
+      '@widgets': resolve('src/renderer/widgets'),
       '@shared': resolve(__dirname, 'src/renderer/shared')
     }
   },
