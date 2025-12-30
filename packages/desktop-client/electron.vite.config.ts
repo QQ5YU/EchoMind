@@ -21,6 +21,7 @@ export default defineConfig({
         '@renderer': resolve('src/renderer'),
         '@app': resolve('src/renderer/app'),
         '@pages': resolve('src/renderer/pages'),
+        '@widgets': resolve('src/renderer/widgets'),
         '@features': resolve('src/renderer/features'),
         '@entities': resolve('src/renderer/entities'),
         '@shared': resolve('src/renderer/shared')
