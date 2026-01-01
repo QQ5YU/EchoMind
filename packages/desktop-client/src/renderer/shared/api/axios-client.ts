@@ -2,7 +2,6 @@ import axios from 'axios';
 
 // Create an Axios instance
 export const api = axios.create({
-  baseURL: 'http://localhost:3000', // Backend URL
   headers: {
     'Content-Type': 'application/json',
   },
@@ -13,10 +12,10 @@ api.interceptors.request.use(
   (config) => {
     const state = localStorage.getItem('auth-storage');
     if (state) {
-        const { state: { token } } = JSON.parse(state);
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+      const { state: { token } } = JSON.parse(state);
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },

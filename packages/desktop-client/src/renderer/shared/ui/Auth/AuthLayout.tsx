@@ -7,7 +7,7 @@ interface AuthLayoutProps {
   subtitle: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  logoHeight?: string; // Optional prop to control logo height if needed, default to h-48 or h-32 based on usage
+  logoHeight?: string; 
 }
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({
@@ -15,7 +15,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   subtitle,
   children,
   footer,
-  logoHeight = "h-32", // Defaulting to a middle ground or explicit
+  logoHeight = "h-32",
 }) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-indigo-50 via-white to-pink-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950">
