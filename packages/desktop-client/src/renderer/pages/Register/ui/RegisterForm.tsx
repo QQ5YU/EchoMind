@@ -4,7 +4,7 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 
 interface RegisterFormProps {
-  onSubmit: () => void;
+  onSubmit: (data: any) => void;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
@@ -15,8 +15,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle registration logic
-    onSubmit();
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    onSubmit({ email, password });
   };
 
   return (
