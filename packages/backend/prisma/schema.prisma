@@ -1,0 +1,83 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String        @map("password_hash")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  audioFiles   AudioFile[]
+  folders      Folder[]
+  settings     UserSetting[]
+
+  @@map("users")
+}
+
+model AudioFile {
+  id         String      @id @default(uuid())
+  userId     String      @map("user_id")
+  folderId   String?     @map("folder_id")
+  fileName   String      @map("file_name")
+  filePath   String      @map("file_path")
+  status     String
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  folder     Folder?     @relation(fields: [folderId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
+  transcript Transcript?
+
+  @@map("audio_files")
+}
+
+model Transcript {
+  id          String              @id @default(uuid())
+  audioFileId String              @unique @map("audio_file_id")
+  language    String?
+  segments    TranscriptSegment[]
+  audioFile   AudioFile           @relation(fields: [audioFileId], references: [id])
+
+  @@map("transcripts")
+}
+
+model TranscriptSegment {
+  id           String     @id @default(uuid())
+  transcriptId String     @map("transcript_id")
+  text         String
+  startTime    Int        @map("start_time")
+  endTime      Int        @map("end_time")
+  embedding    Bytes?
+  transcript   Transcript @relation(fields: [transcriptId], references: [id])
+
+  @@map("transcript_segments")
+}
+
+model Folder {
+  id         String      @id @default(uuid())
+  userId     String      @map("user_id")
+  name       String
+  parentId   String?     @map("parent_id")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  audioFiles AudioFile[]
+  parent     Folder?     @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children   Folder[]    @relation("FolderHierarchy")
+  user       User        @relation(fields: [userId], references: [id])
+
+  @@map("folders")
+}
+
+model UserSetting {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+  key    String
+  value  String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("user_settings")
+}
