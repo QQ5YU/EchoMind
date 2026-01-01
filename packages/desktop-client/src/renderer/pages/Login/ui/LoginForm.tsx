@@ -4,7 +4,7 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 
 interface LoginFormProps {
-  onSubmit: () => void;
+  onSubmit: (data: any) => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
@@ -13,7 +13,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit();
+    onSubmit({ email, password });
   };
 
   return (
