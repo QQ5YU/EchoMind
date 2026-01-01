@@ -19,7 +19,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   if (isAuthenticated) {
-    return <Navigate to="/dashboard"Hp replace />
+    return <Navigate to="/dashboard" replace />
   }
   return <>{children}</>
 }
