@@ -16,7 +16,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      setAuth: (user,WX_token) => set({ user, token: WX_token, isAuthenticated: true }),
+      setAuth: (user, access_token) => set({ user, token: access_token, isAuthenticated: true }),
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
     }),
     {

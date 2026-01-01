@@ -1,28 +1,28 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { DashboardPage } from '@pages/Dashboard'
-import { LoginPage } from '@pages/Login'
-import { RegisterPage } from '@pages/Register'
-import { PlaybackPage } from '@pages/Playback'
-import { SettingsPage } from '@pages/Settings'
-import { ProfilePage } from '@pages/Profile'
-import { useAuthStore } from '@entities/user/model/store'
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { DashboardPage } from "@pages/Dashboard";
+import { LoginPage } from "@pages/Login";
+import { RegisterPage } from "@pages/Register";
+import { PlaybackPage } from "@pages/Playback";
+import { SettingsPage } from "@pages/Settings";
+import { ProfilePage } from "@pages/Profile";
+import { useAuthStore } from "@entities/user/model/store";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/dashboard" replace />;
   }
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
 export const AppRouter: React.FC = () => {
   return (
@@ -79,5 +79,5 @@ export const AppRouter: React.FC = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
-  )
-}
+  );
+};
