@@ -2,7 +2,12 @@
   "name": "EchoMind Dev Container",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
   "postCreateCommand": "bash .devcontainer/setup.sh",
-  "forwardPorts": [5173, 3000, 3001],
+  "forwardPorts": [
+    5173,
+    3000,
+    3001,
+    5555
+  ],
   "portsAttributes": {
     "3000": {
       "label": "Backend Server",
@@ -14,6 +19,10 @@
     },
     "5173": {
       "label": "Frontend Renderer",
+      "onAutoForward": "openBrowser"
+    },
+    "5555": {
+      "label": "Backend database dashboard",
       "onAutoForward": "openBrowser"
     }
   },
@@ -27,7 +36,9 @@
         "esbenp.prettier-vscode",
         "mhutchie.git-graph",
         "EditorConfig.EditorConfig",
-        "ms-python.python"
+        "ms-python.python",
+        "bradlc.vscode-tailwindcss",
+        "lightyen.tailwindcss-intellisense-twin"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -39,5 +50,5 @@
     }
   },
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/EchoMind,type=bind"
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind"
 }

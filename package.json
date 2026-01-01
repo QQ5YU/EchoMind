@@ -2,12 +2,15 @@
   "name": "echomind",
   "private": true,
   "scripts": {
-    "dev": "pnpm -r dev",
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
+    "dev": "pnpm -r --parallel run dev",
+    "start": "pnpm --filter backend start:dev & pnpm --filter desktop-client dev:web",
+    "backend:dev": "pnpm --filter backend start:dev",
+    "backend:build": "pnpm --filter backend build",
     "client:dev": "pnpm --filter desktop-client dev",
     "client:build": "pnpm --filter desktop-client build",
-    "client:preview": "node simple_server.js"
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -16,5 +19,11 @@
       "esbuild",
       "electron-winstaller"
     ]
+  },
+  "devDependencies": {
+    "prisma": "^6.19.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.1"
   }
 }

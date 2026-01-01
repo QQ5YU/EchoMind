@@ -2,7 +2,7 @@
 set -e
 
 echo "🔧 Step 1: Install system dependencies (Python, FFmpeg, build tools)..."
-apt-get update && apt-get install -y \
+sudo apt-get update && sudo apt-get install -y \
     python3 \
     python3-pip \
     python3-dev \
@@ -23,6 +23,6 @@ python3 -m pip install --no-cache-dir --upgrade pip
 # python3 -m pip install --no-cache-dir -r requirements.txt
 
 # echo "⚡ Step 4: Install Node.js dependencies with pnpm..."
-# pnpm install
+pnpm install
 
 echo "✅ Dev environment ready!"
