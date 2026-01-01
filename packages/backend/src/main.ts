@@ -1,7 +1,6 @@
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AllExceptionsFilter } from './core/filters/http-exception.filter';
 import { ZodValidationPipe } from 'nestjs-zod';
 
 async function bootstrap() {
@@ -9,10 +8,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.enableCors();
-
-  // Apply Global Exception Filter
-  const httpAdapter = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   
   // Apply Global Validation Pipe
   app.useGlobalPipes(new ZodValidationPipe());

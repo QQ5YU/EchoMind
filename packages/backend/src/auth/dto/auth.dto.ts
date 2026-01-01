@@ -6,7 +6,12 @@ const AuthSchema = z.object({
   password: z.string().min(6),
 });
 
-export class AuthDto extends createZodDto(AuthSchema) {}
+const RegisterSchema = AuthSchema.extend({
+  name: z.string().min(2),
+  confirmPassword: z.string().min(6)
+})
 
-export class RegisterDto extends createZodDto(AuthSchema) {}
-export class LoginDto extends createZodDto(AuthSchema) {}
+export class AuthDto extends createZodDto(AuthSchema) { }
+
+export class RegisterDto extends createZodDto(RegisterSchema) { }
+export class LoginDto extends createZodDto(AuthSchema) { }
