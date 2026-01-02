@@ -9,10 +9,10 @@ import { classNames } from "primereact/utils";
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
+    name: z.string().trim().min(2, "Name must be at least 2 characters"),
+    email: z.string().trim().email("Invalid email address"),
+    password: z.string().trim().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().trim(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -29,7 +29,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {

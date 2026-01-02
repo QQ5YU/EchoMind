@@ -1,4 +1,4 @@
-import { NestFactory, HttpAdapterHost } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'nestjs-zod';
@@ -8,8 +8,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.enableCors();
-  
-  // Apply Global Validation Pipe
   app.useGlobalPipes(new ZodValidationPipe());
 
   const config = new DocumentBuilder()

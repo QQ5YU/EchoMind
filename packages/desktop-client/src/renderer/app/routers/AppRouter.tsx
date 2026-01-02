@@ -6,23 +6,7 @@ import { RegisterPage } from "@pages/Register";
 import { PlaybackPage } from "@pages/Playback";
 import { SettingsPage } from "@pages/Settings";
 import { ProfilePage } from "@pages/Profile";
-import { useAuthStore } from "@entities/user/model/store";
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return <>{children}</>;
-};
-
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return <>{children}</>;
-};
+import { ProtectedRoute, PublicRoute } from "../providers/RouteGuards";
 
 export const AppRouter: React.FC = () => {
   return (
