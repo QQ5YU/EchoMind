@@ -1,4 +1,4 @@
-import { api } from '@shared/api/axios-client';
+import { api } from '@renderer/app/utils/api';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../model/types';
 
 export const userApi = {
