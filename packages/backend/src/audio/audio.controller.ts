@@ -9,11 +9,10 @@ import {
   Request,
   ParseFilePipe,
   MaxFileSizeValidator,
-  FileTypeValidator,
   Res,
-  StreamableFile,
   NotFoundException,
 } from '@nestjs/common';
+import 'multer';
 import { AudioService } from './application/audio.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -109,7 +108,7 @@ export class AudioController {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': chunksize,
-        'Content-Type': 'audio/mpeg', // Determine type dynamically if possible
+        'Content-Type': 'audio/mpeg',
       };
       res.writeHead(206, head);
       fileStream.pipe(res);

@@ -1,18 +1,13 @@
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { classNames } from 'primereact/utils';
+import { LoginSchema, LoginRequestDto } from '@echomind/shared';
 
-const loginSchema = z.object({
-  email: z.string().trim().email('Invalid email address'),
-  password: z.string().trim().min(1, 'Password is required'),
-});
-
-export type LoginFormData = z.infer<typeof loginSchema>;
+export type LoginFormData = LoginRequestDto;
 
 interface LoginFormProps {
   onSubmit: (data: LoginFormData) => void;
@@ -24,7 +19,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: '',
       password: '',

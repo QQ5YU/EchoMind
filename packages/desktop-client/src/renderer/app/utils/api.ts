@@ -1,5 +1,5 @@
 import { useAuthStore } from '@entities/user';
-import { createApiClient } from '@shared/api';
+import { createApiClient, ipcAdapter } from '@shared/api';
 import { toastService } from '@shared/services';
 
 const getTokenFromStore = () => {
@@ -8,7 +8,16 @@ const getTokenFromStore = () => {
 
 const handleUnauthorized = () => {
   useAuthStore.getState().logout();
-  window.location.href = '/login';
 };
 
-export const api = createApiClient(toastService, getTokenFromStore, handleUnauthorized);
+/**
+ * Determine the appropriate adapter based on the environment.
+ */
+const adapter = typeof window !== 'undefined' && window.api ? ipcAdapter : undefined;
+
+export const api = createApiClient(
+  toastService, 
+  getTokenFromStore, 
+  handleUnauthorized, 
+  adapter
+);

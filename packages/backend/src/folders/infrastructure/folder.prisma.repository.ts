@@ -1,13 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { Folder } from '../domain/folder.entity';
 import { FolderRepository } from '../domain/folder.repository';
+import { Prisma } from '@prisma/client';
+import { FolderDeleteResponseDto } from '@echomind/shared';
 
 @Injectable()
 export class FolderPrismaRepository implements FolderRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(folder: Omit<Folder, 'id' | 'createdAt' | 'children'>): Promise<Folder> {
+  async create(
+    folder: Omit<Folder, 'id' | 'createdAt' | 'children'>,
+  ): Promise<Folder> {
     const created = await this.prisma.folder.create({
       data: {
         userId: folder.userId,
@@ -23,13 +32,36 @@ export class FolderPrismaRepository implements FolderRepository {
       where: { userId },
       include: { children: true },
     });
-    // This returns a flat list with children populated one level deep. 
-    // For a full tree structure, we might need recursive processing, 
-    // but the spec just says "possibly nested" and "Retrieves the folder structure".
-    // For now, returning the list is fine, frontend can build the tree, 
-    // or we can build it here. 
-    // Prisma doesn't do deep recursive include easily. 
-    // Let's return the flat list of all folders for the user, frontend can reconstruct the tree using parentId.
-    return folders.map(f => new Folder(f));
+
+    return folders.map((f) => new Folder(f));
+  }
+
+  async delete(userId: string, id: string): Promise<FolderDeleteResponseDto> {
+    try {
+      const deleted = await this.prisma.folder.delete({
+        where: { id, userId },
+      });
+
+      return {
+        success: true,
+        message: 'Folder has been deleted.',
+        data: deleted,
+      };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (error.code) {
+          case 'P2025':
+            throw new NotFoundException('Folder does not exist.');
+          case 'P2003':
+            throw new BadRequestException(
+              'Cannot delete folder: it contains files or subfolders.',
+            );
+          default:
+            throw new InternalServerErrorException('Failed to delete folder.');
+        }
+      }
+
+      throw error;
+    }
   }
 }

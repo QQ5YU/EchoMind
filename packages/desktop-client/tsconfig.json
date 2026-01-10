@@ -15,8 +15,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
+      "@backend/*": ["../backend/src/*"],
       "@renderer/*": ["src/renderer/*"],
       "@app/*": ["src/renderer/app/*"],
       "@pages/*": ["src/renderer/pages/*"],

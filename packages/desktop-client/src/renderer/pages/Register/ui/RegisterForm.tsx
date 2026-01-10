@@ -1,37 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { classNames } from "primereact/utils";
+import { RegisterSchema, RegisterRequestDto } from "@echomind/shared";
 
-const registerSchema = z
-  .object({
-    name: z.string().trim().min(2, "Name must be at least 2 characters"),
-    email: z.string().trim().email("Invalid email address"),
-    password: z.string().trim().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().trim(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-export type RegisterFormData = z.infer<typeof registerSchema>;
+export type RegisterFormData = RegisterRequestDto;
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => void;
+  serverErrors?: Partial<Record<keyof RegisterFormData, string>>;
 }
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
+export const RegisterForm: React.FC<RegisterFormProps> = ({
+  onSubmit,
+  serverErrors,
+}) => {
   const {
     control,
     handleSubmit,
+    setError,
     formState: { isSubmitting },
   } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -39,6 +32,19 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
       confirmPassword: "",
     },
   });
+
+  useEffect(() => {
+    if (serverErrors) {
+      Object.entries(serverErrors).forEach(([key, message]) => {
+        if (message) {
+          setError(key as keyof RegisterFormData, {
+            type: "server",
+            message,
+          });
+        }
+      });
+    }
+  }, [serverErrors, setError]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-fluid">
