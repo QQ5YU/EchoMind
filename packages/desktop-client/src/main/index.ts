@@ -1,6 +1,9 @@
-import { app, shell, BrowserWindow } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import "reflect-metadata";
+import { app, shell, BrowserWindow } from "electron";
+import { join } from "path";
+import { electronApp, optimizer, is } from "@electron-toolkit/utils";
+import { BackendManager } from "./backend/manager";
+import { setupApiHandlers } from "./ipc/handler";
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -8,47 +11,68 @@ function createWindow(): void {
     height: 1080,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon: join(__dirname, '../../resources/icon.png') } : {}),
+    ...(process.platform === "linux"
+      ? { icon: join(__dirname, "../../resources/icon.png") }
+      : {}),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
-    }
-  })
+      preload: join(__dirname, "../preload/index.js"),
+      sandbox: false,
+    },
+  });
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
+  mainWindow.on("ready-to-show", () => mainWindow.show());
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
+    const url = details.url;
+    console.log(`[Main] Window open request: ${url}`);
+    
+    // Only allow external http/https links to open in the system browser
+    if (url.startsWith("http:") || url.startsWith("https:")) {
+      // If it's the development server, don't open it externally
+      if (process.env["ELECTRON_RENDERER_URL"] && url.startsWith(process.env["ELECTRON_RENDERER_URL"])) {
+        return { action: "allow" };
+      }
+      
+      console.log(`[Main] Opening external link: ${url}`);
+      shell.openExternal(url);
+    }
+    
+    return { action: "deny" };
+  });
 
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+    mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
 }
 
-app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.echomind')
+app.whenReady().then(async () => {
+  electronApp.setAppUserModelId("com.echomind");
 
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
+  app.on("browser-window-created", (_, window) => {
+    optimizer.watchWindowShortcuts(window);
+  });
 
-  createWindow()
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-})
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
+  try {
+    const backend = BackendManager.getInstance();
+    const context = await backend.initialize();
+    setupApiHandlers(context);
+  } catch (error) {
+    console.error("Failed to start EchoMind Backend:", error);
   }
-})
+
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+});

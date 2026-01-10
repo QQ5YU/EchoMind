@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Button } from 'primereact/button'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useFileBrowserStore } from '@features/fileBrowser'
+import { useFileSystemStore } from '@entities/fileSystem'
 import { SidebarNavItem } from './SidebarNavItem'
 import { SidebarFolderList } from './SidebarFolderList'
 
@@ -9,6 +10,8 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { currentFolderId, setCurrentFolder } = useFileBrowserStore()
+  const uploadFile = useFileSystemStore((state) => state.uploadFile)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const isSettingsPage = location.pathname === '/settings'
   const isDashboardPage = location.pathname === '/dashboard'
@@ -24,9 +27,34 @@ export const Sidebar: React.FC = () => {
     navigate('/settings')
   }
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      uploadFile(file)
+      // Reset input value to allow uploading the same file again if needed
+      e.target.value = ''
+    }
+  }
+
   return (
     <div className="p-4 flex flex-col h-full">
-      <Button label="Upload Audio" icon="pi pi-upload" className="w-full text-white" />
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        style={{ display: 'none' }} 
+        accept="audio/*" 
+        onChange={handleFileChange} 
+      />
+      <Button 
+        label="Upload Audio" 
+        icon="pi pi-upload" 
+        className="w-full text-white" 
+        onClick={handleUploadClick}
+      />
       
       <nav className="flex-1 mt-6 overflow-y-auto min-h-0">
         <ul className="space-y-2">

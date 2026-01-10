@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 import { Message } from "primereact/message";
+import { ApiError } from "@renderer/shared/api/types";
 
 import { AuthLayout } from "@renderer/shared/ui/Auth/AuthLayout";
 import { useAuthStore } from "@entities/user/model/store";
@@ -25,18 +27,24 @@ export const LoginPage: React.FC = () => {
       } else {
         throw new Error("Invalid server response");
       }
-    } catch (err: any) {
-      const status = err.response?.status;
-      const code = err.code;
-
-      if (code === "ERR_NETWORK") {
-        setError("Unable to connect to the server. Please check your connection.");
-      } else if (status === 401) {
-        setError("Invalid email or password.");
-      } else {
-        // 500 errors are logged by axios interceptor
-        setError(err.response?.data?.message || "Login failed. Please try again.");
+      
+    } catch (err) {
+      if (isAxiosError<ApiError>(err)) {
+        if (err.response) {
+          const { status, data } = err.response;
+          if (status === 401) {
+            setError("Invalid email or password.");
+          } else {
+            setError(
+              data?.message ||
+                `Login failed with status ${status}. Please try again.`
+            );
+          }
+          return;
+        }
       }
+
+      setError("An unexpected error occurred. Please try again.");
     }
   }, [navigate, setAuth]);
 

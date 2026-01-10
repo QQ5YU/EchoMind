@@ -1,21 +1,11 @@
-export interface User {
-  id: string
-  email: string
-  name?: string
-  createdAt: string
-}
+import { 
+  UserDto, 
+  AuthResponseDto, 
+  LoginRequestDto, 
+  RegisterRequestDto 
+} from '@echomind/shared';
 
-export interface AuthResponse {
-  access_token: string
-  user: User
-}
-
-export interface LoginRequest {
-  email: string
-  password: string
-}
-
-export interface RegisterRequest extends LoginRequest {
-  name?: string
-  confirmPassword?: string
-}
+export type User = UserDto;
+export type AuthResponse = AuthResponseDto;
+export type LoginRequest = LoginRequestDto;
+export type RegisterRequest = RegisterRequestDto;
