@@ -1,3 +1,10 @@
+enum AudioStatus {
+  PENDING    @map("pending")
+  PROCESSING @map("processing")
+  PROCESSED  @map("processed")
+  ERROR      @map("error")
+}
+
 generator client {
   provider   = "prisma-client-js"
   engineType = "library"
@@ -26,10 +33,10 @@ model AudioFile {
   folderId   String?     @map("folder_id")
   fileName   String      @map("file_name")
   filePath   String      @map("file_path")
-  status     String
+  status     AudioStatus
   createdAt  DateTime    @default(now()) @map("created_at")
   updatedAt  DateTime    @updatedAt @map("updated_at")
-  folder     Folder?     @relation(fields: [folderId], references: [id])
+  folder     Folder?     @relation(fields: [folderId], references: [id], onDelete: Cascade)
   user       User        @relation(fields: [userId], references: [id])
   transcript Transcript?
 
@@ -65,7 +72,7 @@ model Folder {
   parentId   String?     @map("parent_id")
   createdAt  DateTime    @default(now()) @map("created_at")
   audioFiles AudioFile[]
-  parent     Folder?     @relation("FolderHierarchy", fields: [parentId], references: [id])
+  parent     Folder?     @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
   children   Folder[]    @relation("FolderHierarchy")
   user       User        @relation(fields: [userId], references: [id])
 
