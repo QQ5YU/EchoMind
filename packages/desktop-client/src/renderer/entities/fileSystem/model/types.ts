@@ -1,7 +1,9 @@
+import { AudioStatus } from '@echomind/shared';
+
 export interface FileNode {
   id: string
   name: string
-  status: 'uploading' | 'processing' | 'processed' | 'error'
+  status: AudioStatus
   createdAt: string
   folderId?: string | null
 }
@@ -9,4 +11,5 @@ export interface FileNode {
 export interface FolderNode {
   id: string
   name: string
+  parentId?: string | null
 }
