@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import 'multer';
 import { AudioRepository } from '../domain/audio.repository';
 import { AudioFile } from '../domain/audio.entity';
+import { AudioStatus } from '@echomind/shared';
 import * as fs from 'fs';
 import * as path from 'path';
 import { InjectQueue } from '@nestjs/bull';
@@ -29,7 +31,7 @@ export class AudioService {
       userId,
       fileName: file.originalname,
       filePath,
-      status: 'pending',
+      status: AudioStatus.PENDING,
       folderId: null,
     });
 

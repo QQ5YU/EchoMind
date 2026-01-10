@@ -2,7 +2,7 @@ import { Process, Processor } from '@nestjs/bull';
 import type { Job } from 'bull';
 import { AudioRepository } from '../domain/audio.repository';
 import { TranscriptRepository } from '../../transcripts/domain/transcript.repository';
-import { spawn } from 'child_process';
+import { AudioStatus } from '@echomind/shared';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -15,14 +15,13 @@ export class AudioProcessor {
 
   @Process('transcribe')
   async handleTranscribe(job: Job<{ audioFileId: string; filePath: string }>) {
-    const { audioFileId, filePath } = job.data;
+    const { audioFileId } = job.data;
     console.log(`Processing audio file ${audioFileId}...`);
 
-    await this.audioRepository.updateStatus(audioFileId, 'processing');
+    await this.audioRepository.updateStatus(audioFileId, AudioStatus.PROCESSING);
 
     try {
       // Mocking the AI script execution or calling the real one if it existed
-      const outputDir = path.dirname(filePath);
       const scriptPath = path.resolve(__dirname, '../../../../../scripts/ai/process_audio.py');
 
       // For MVP without the real AI script, we can mock the output here
@@ -33,7 +32,7 @@ export class AudioProcessor {
       if (!fs.existsSync(scriptPath)) {
         console.warn('AI script not found, using mock data.');
         await this.mockProcessing(audioFileId);
-        await this.audioRepository.updateStatus(audioFileId, 'processed');
+        await this.audioRepository.updateStatus(audioFileId, AudioStatus.PROCESSED);
         return;
       }
 
@@ -48,11 +47,11 @@ export class AudioProcessor {
       // ... handling stdout/stderr ...
       // keeping it simple for now, using mock if script doesn't exist
        await this.mockProcessing(audioFileId);
-       await this.audioRepository.updateStatus(audioFileId, 'processed');
+       await this.audioRepository.updateStatus(audioFileId, AudioStatus.PROCESSED);
 
     } catch (error) {
       console.error('Transcription failed', error);
-      await this.audioRepository.updateStatus(audioFileId, 'error');
+      await this.audioRepository.updateStatus(audioFileId, AudioStatus.ERROR);
     }
   }
 
