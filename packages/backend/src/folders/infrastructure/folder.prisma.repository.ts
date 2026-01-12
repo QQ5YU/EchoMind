@@ -8,7 +8,6 @@ import { PrismaService } from '../../core/prisma/prisma.service';
 import { Folder } from '../domain/folder.entity';
 import { FolderRepository } from '../domain/folder.repository';
 import { Prisma } from '@prisma/client';
-import { FolderDeleteResponseDto } from '@echomind/shared';
 
 @Injectable()
 export class FolderPrismaRepository implements FolderRepository {
@@ -33,20 +32,16 @@ export class FolderPrismaRepository implements FolderRepository {
       include: { children: true },
     });
 
-    return folders.map((f) => new Folder(f));
+    return folders.map((f: any) => new Folder(f));
   }
 
-  async delete(userId: string, id: string): Promise<FolderDeleteResponseDto> {
+  async delete(userId: string, id: string): Promise<Folder> {
     try {
       const deleted = await this.prisma.folder.delete({
         where: { id, userId },
       });
 
-      return {
-        success: true,
-        message: 'Folder has been deleted.',
-        data: deleted,
-      };
+      return new Folder(deleted);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         switch (error.code) {
