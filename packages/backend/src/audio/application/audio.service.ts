@@ -1,8 +1,16 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import 'multer';
 import { AudioRepository } from '../domain/audio.repository';
 import { AudioFile } from '../domain/audio.entity';
-import { AudioStatus } from '@echomind/shared';
+import {
+  AudioFileDto,
+  AudioStatus,
+  FileDeleteResponseDto,
+} from '@echomind/shared';
 import * as fs from 'fs';
 import * as path from 'path';
 import { InjectQueue } from '@nestjs/bull';
@@ -15,7 +23,10 @@ export class AudioService {
     @InjectQueue('audio-transcription') private audioQueue: Queue,
   ) {}
 
-  async uploadFile(userId: string, file: Express.Multer.File): Promise<AudioFile> {
+  async uploadFile(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<AudioFileDto> {
     const storageDir = path.resolve(__dirname, '../../../storage/audio');
     if (!fs.existsSync(storageDir)) {
       fs.mkdirSync(storageDir, { recursive: true });
@@ -40,21 +51,44 @@ export class AudioService {
       filePath: audioFile.filePath,
     });
 
-    return audioFile;
+    return this.toAudioFileDto(audioFile);
+  }
+
+  async deleteFile(userId: string, id: string): Promise<FileDeleteResponseDto> {
+    const audioFile = await this.audioRepository.delete(userId, id);
+    return {
+      success: true,
+      message: 'File has been deleted.',
+      data: this.toAudioFileDto(audioFile),
+    };
   }
 
   async findByIdInternal(id: string): Promise<AudioFile | null> {
     return this.audioRepository.findById(id);
   }
 
-  async findAll(userId: string): Promise<AudioFile[]> {
-    return this.audioRepository.findAllByUserId(userId);
+  async findAll(userId: string): Promise<AudioFileDto[]> {
+    const files = await this.audioRepository.findAllByUserId(userId);
+    return files.map((f) => this.toAudioFileDto(f));
   }
 
-  async findOne(id: string, userId: string): Promise<AudioFile> {
+  async findOne(id: string, userId: string): Promise<AudioFileDto> {
     const file = await this.audioRepository.findById(id);
     if (!file) throw new NotFoundException('Audio file not found');
     if (file.userId !== userId) throw new ForbiddenException('Access denied');
-    return file;
+    return this.toAudioFileDto(file);
+  }
+
+  private toAudioFileDto(audioFile: AudioFile): AudioFileDto {
+    return {
+      id: audioFile.id,
+      userId: audioFile.userId,
+      folderId: audioFile.folderId,
+      fileName: audioFile.fileName,
+      filePath: audioFile.filePath,
+      status: audioFile.status,
+      createdAt: audioFile.createdAt.toISOString(),
+      updatedAt: audioFile.updatedAt.toISOString(),
+    };
   }
 }
