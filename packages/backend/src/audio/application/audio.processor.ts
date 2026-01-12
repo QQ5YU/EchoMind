@@ -18,21 +18,30 @@ export class AudioProcessor {
     const { audioFileId } = job.data;
     console.log(`Processing audio file ${audioFileId}...`);
 
-    await this.audioRepository.updateStatus(audioFileId, AudioStatus.PROCESSING);
+    await this.audioRepository.updateStatus(
+      audioFileId,
+      AudioStatus.PROCESSING,
+    );
 
     try {
       // Mocking the AI script execution or calling the real one if it existed
-      const scriptPath = path.resolve(__dirname, '../../../../../scripts/ai/process_audio.py');
+      const scriptPath = path.resolve(
+        __dirname,
+        '../../../../../scripts/ai/process_audio.py',
+      );
 
       // For MVP without the real AI script, we can mock the output here
       // OR we can try to run the script.
       // Let's assume we run the script. If it fails (e.g. not found), we catch it.
-      
+
       // Ensure scripts/ai exists
       if (!fs.existsSync(scriptPath)) {
         console.warn('AI script not found, using mock data.');
         await this.mockProcessing(audioFileId);
-        await this.audioRepository.updateStatus(audioFileId, AudioStatus.PROCESSED);
+        await this.audioRepository.updateStatus(
+          audioFileId,
+          AudioStatus.PROCESSED,
+        );
         return;
       }
 
@@ -43,12 +52,14 @@ export class AudioProcessor {
       //   '--output-dir',
       //   outputDir,
       // ]);
-      
+
       // ... handling stdout/stderr ...
       // keeping it simple for now, using mock if script doesn't exist
-       await this.mockProcessing(audioFileId);
-       await this.audioRepository.updateStatus(audioFileId, AudioStatus.PROCESSED);
-
+      await this.mockProcessing(audioFileId);
+      await this.audioRepository.updateStatus(
+        audioFileId,
+        AudioStatus.PROCESSED,
+      );
     } catch (error) {
       console.error('Transcription failed', error);
       await this.audioRepository.updateStatus(audioFileId, AudioStatus.ERROR);
@@ -57,22 +68,30 @@ export class AudioProcessor {
 
   async mockProcessing(audioFileId: string) {
     // Simulate delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     const mockTranscript = {
       language: 'en',
       segments: [
-        { text: 'This is a mock transcript segment 1.', startTime: 0, endTime: 5 },
-        { text: 'This is the second segment of the audio.', startTime: 5, endTime: 10 },
-      ]
+        {
+          text: 'This is a mock transcript segment 1.',
+          startTime: 0,
+          endTime: 5,
+        },
+        {
+          text: 'This is the second segment of the audio.',
+          startTime: 5,
+          endTime: 10,
+        },
+      ],
     };
 
     await this.transcriptRepository.save(
       { audioFileId, language: mockTranscript.language },
-      mockTranscript.segments.map(s => ({
+      mockTranscript.segments.map((s) => ({
         ...s,
         transcriptId: '', // Will be handled by repo
-      }))
+      })),
     );
   }
 }
