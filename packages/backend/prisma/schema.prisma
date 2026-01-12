@@ -6,8 +6,8 @@ enum AudioStatus {
 }
 
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "library"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -47,7 +47,7 @@ model Transcript {
   audioFileId String              @unique @map("audio_file_id")
   language    String?
   segments    TranscriptSegment[]
-  audioFile   AudioFile           @relation(fields: [audioFileId], references: [id])
+  audioFile   AudioFile           @relation(fields: [audioFileId], references: [id], onDelete: Cascade)
 
   @@map("transcripts")
 }
@@ -59,7 +59,7 @@ model TranscriptSegment {
   startTime    Int        @map("start_time")
   endTime      Int        @map("end_time")
   embedding    Bytes?
-  transcript   Transcript @relation(fields: [transcriptId], references: [id])
+  transcript   Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
 
   @@map("transcript_segments")
 }
