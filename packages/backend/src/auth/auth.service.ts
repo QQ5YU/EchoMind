@@ -13,7 +13,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<Omit<User, 'passwordHash'> | null> {
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Omit<User, 'passwordHash'> | null> {
     const user = await this.usersService.findByEmail(email);
     if (user && (await bcrypt.compare(pass, user.passwordHash))) {
       const { passwordHash: _, ...result } = user;
@@ -35,7 +38,9 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const existingUser = await this.usersService.findByEmail(registerDto.email!);
+    const existingUser = await this.usersService.findByEmail(
+      registerDto.email!,
+    );
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
@@ -43,7 +48,10 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(registerDto.password!, salt);
 
-    const user = await this.usersService.create(registerDto.email!, passwordHash);
+    const user = await this.usersService.create(
+      registerDto.email!,
+      passwordHash,
+    );
     return this.login(user);
   }
 }
