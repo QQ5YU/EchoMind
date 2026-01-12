@@ -13,8 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
 import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
-import { Folder } from './domain/folder.entity';
-import { FolderDeleteResponseDto } from '@echomind/shared';
+import { FolderDeleteResponseDto, FolderDto } from '@echomind/shared';
 
 const CreateFolderSchema = z.object({
   name: z.string(),
@@ -32,8 +31,8 @@ export class FoldersController {
   async create(
     @Request() req: RequestWithUser,
     @Body() createFolderDto: CreateFolderDto,
-  ): Promise<Folder> {
-    return this.foldersService.create(
+  ): Promise<FolderDto> {
+    return await this.foldersService.create(
       req.user.userId,
       createFolderDto.name,
       createFolderDto.parentId,
@@ -41,8 +40,8 @@ export class FoldersController {
   }
 
   @Get()
-  async findAll(@Request() req: RequestWithUser): Promise<Folder[]> {
-    return this.foldersService.findAll(req.user.userId);
+  async findAll(@Request() req: RequestWithUser): Promise<FolderDto[]> {
+    return await this.foldersService.findAll(req.user.userId);
   }
 
   @Delete(':id')
@@ -50,6 +49,6 @@ export class FoldersController {
     @Request() req: RequestWithUser,
     @Param('id') id: string,
   ): Promise<FolderDeleteResponseDto> {
-    return this.foldersService.delete(req.user.userId, id);
+    return await this.foldersService.delete(req.user.userId, id);
   }
 }
