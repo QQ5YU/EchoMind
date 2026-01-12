@@ -6,6 +6,7 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "tsConfigPath": "tsconfig.json",
+    "builder": "tsc",
     "plugins": [
       "@nestjs/swagger"
     ],
@@ -13,10 +14,6 @@
       {
         "include": ".env",
         "outDir": "dist/"
-      },
-      {
-        "include": "prisma/**/*",
-        "outDir": "dist/prisma"
       }
     ]
   }
