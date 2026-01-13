@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FolderRepository } from '../domain/folder.repository';
 import { Folder } from '../domain/folder.entity';
-import { FolderDeleteResponseDto, FolderDto } from '@echomind/shared';
+import { FolderDeleteResponseDto, FolderDto } from '../dto/folders.dto';
 
 @Injectable()
 export class FoldersService {

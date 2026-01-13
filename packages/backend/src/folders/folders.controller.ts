@@ -10,17 +10,8 @@ import {
 } from '@nestjs/common';
 import { FoldersService } from './application/folders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { z } from 'zod';
-import { createZodDto } from 'nestjs-zod';
 import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
-import { FolderDeleteResponseDto, FolderDto } from '@echomind/shared';
-
-const CreateFolderSchema = z.object({
-  name: z.string(),
-  parentId: z.string().optional(),
-});
-
-class CreateFolderDto extends createZodDto(CreateFolderSchema) {}
+import { CreateFolderDto, FolderDeleteResponseDto, FolderDto } from './dto/folders.dto';
 
 @Controller('folders')
 @UseGuards(JwtAuthGuard)
