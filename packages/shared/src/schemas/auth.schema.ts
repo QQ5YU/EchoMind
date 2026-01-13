@@ -18,4 +18,4 @@ export const RegisterSchema = z
   });
 
 export type LoginRequestDto = z.infer<typeof LoginSchema>;
-export type RegisterRequestDto = z.infer<typeof RegisterSchema>;
+export type RegisterRequestDto = z.infer<typeof RegisterSchema>
