@@ -16,6 +16,13 @@ export const FolderSchema: z.ZodType<any> = z.lazy(() =>
 
 export type FolderDto = z.infer<typeof FolderSchema>;
 
+export const CreateFolderSchema = z.object({
+  name: z.string().min(1, "Folder name is required"),
+  parentId: z.string().optional(),
+});
+
+export type CreateFolderDto = z.infer<typeof CreateFolderSchema>;
+
 export const FolderDeleteResponseSchema = z
   .object({
     success: z.boolean(),
