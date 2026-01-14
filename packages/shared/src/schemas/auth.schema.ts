@@ -1,9 +1,11 @@
 import { z } from "zod";
 
-export const LoginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+export const LoginSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+  })
+  .strict();
 
 export const RegisterSchema = z
   .object({
@@ -12,10 +14,11 @@ export const RegisterSchema = z
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(6),
   })
+  .strict()
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
 
 export type LoginRequestDto = z.infer<typeof LoginSchema>;
-export type RegisterRequestDto = z.infer<typeof RegisterSchema>
+export type RegisterRequestDto = z.infer<typeof RegisterSchema>;
