@@ -1,10 +1,11 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { UsersService } from '../users/application/users.service';
+import { Injectable } from '@nestjs/common';
+import { UsersService } from '../../users/application/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto } from './dto/auth.dto';
-import { User } from '../users/domain/user.entity';
+import { RegisterDto } from '../dto/auth.dto';
+import { User } from '../../users/domain/user.entity';
 import { AuthResponseDto } from '@echomind/shared';
+import { DuplicateEntityException } from '../../core/error-handling/exceptions/application.exception';
 
 @Injectable()
 export class AuthService {
@@ -41,8 +42,9 @@ export class AuthService {
     const existingUser = await this.usersService.findByEmail(
       registerDto.email!,
     );
+
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new DuplicateEntityException('User', 'email');
     }
 
     const salt = await bcrypt.genSalt();
@@ -52,6 +54,7 @@ export class AuthService {
       registerDto.email!,
       passwordHash,
     );
+
     return this.login(user);
   }
 }
