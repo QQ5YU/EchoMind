@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { ThemeMode } from '@renderer/shared/types/theme'
 
 interface SettingsState {
-  theme: 'light' | 'dark'
-  setTheme: (theme: 'light' | 'dark') => void
+  theme: ThemeMode
+  setTheme: (theme: ThemeMode) => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
