@@ -3,34 +3,41 @@ import { Menu } from "primereact/menu";
 import { Avatar } from "primereact/avatar";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@entities/user/model/store";
+import { ROUTES } from "@renderer/shared/config/routes";
 
 export const UserMenu: React.FC = () => {
   const menu = useRef<Menu>(null);
   const navigate = useNavigate();
-  const logout = useAuthStore((state) => state.logout);
-  const user = useAuthStore((state) => state.user);
+  const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate(ROUTES.LOGIN);
   };
 
   const items = [
     {
-      label: "Profile",
-      icon: "pi pi-user",
-      command: () => navigate("/profile"),
-    },
-    {
-      label: "Account Settings",
-      icon: "pi pi-user-edit",
-      command: () => navigate("/profile"),
-    },
-    { separator: true },
-    {
-      label: "Logout",
-      icon: "pi pi-sign-out",
-      command: handleLogout,
+      label: "Account",
+      items: [
+        {
+          label: "Profile",
+          icon: "pi pi-user",
+          command: () => navigate(ROUTES.PROFILE),
+        },
+        {
+          label: "Settings",
+          icon: "pi pi-cog",
+          command: () => navigate(ROUTES.PROFILE),
+        },
+        {
+          separator: true,
+        },
+        {
+          label: "Logout",
+          icon: "pi pi-sign-out",
+          command: handleLogout,
+        },
+      ],
     },
   ];
 

@@ -1,52 +1,22 @@
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { isAxiosError } from "axios";
 import { Message } from "primereact/message";
-import { ApiError } from "@renderer/shared/api/types";
 
 import { AuthLayout } from "@renderer/shared/ui/Auth/AuthLayout";
-import { useAuthStore } from "@entities/user/model/store";
-import { userApi } from "@entities/user/api/userApi";
-
+import { ROUTES } from "@renderer/shared/config/routes";
+import { useLogin } from "./hooks/useLogin";
 import { LoginForm, LoginFormData } from "./ui/LoginForm";
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const [error, setError] = useState<string | null>(null);
+  const { login, error } = useLogin();
 
-  const handleLogin = useCallback(async (credentials: LoginFormData) => {
-    setError(null);
-
-    try {
-      const { data } = await userApi.login(credentials);
-
-      if (data?.user && data?.access_token) {
-        setAuth(data.user, data.access_token);
-        navigate("/dashboard");
-      } else {
-        throw new Error("Invalid server response");
-      }
-      
-    } catch (err) {
-      if (isAxiosError<ApiError>(err)) {
-        if (err.response) {
-          const { status, data } = err.response;
-          if (status === 401) {
-            setError("Invalid email or password.");
-          } else {
-            setError(
-              data?.message ||
-                `Login failed with status ${status}. Please try again.`
-            );
-          }
-          return;
-        }
-      }
-
-      setError("An unexpected error occurred. Please try again.");
+  const handleLogin = async (credentials: LoginFormData) => {
+    const success = await login(credentials);
+    if (success) {
+      navigate(ROUTES.DASHBOARD);
     }
-  }, [navigate, setAuth]);
+  };
 
   return (
     <AuthLayout
@@ -58,7 +28,7 @@ export const LoginPage: React.FC = () => {
             Don't have an account?{" "}
           </span>
           <Link
-            to="/register"
+            to={ROUTES.REGISTER}
             className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
           >
             Sign up
