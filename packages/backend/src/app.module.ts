@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CoreModule } from './core/core.module';
 import { PrismaModule } from './core/prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './user/user.module';
 import { AudioModule } from './audio/audio.module';
 import { FoldersModule } from './folders/folders.module';
 import { SearchModule } from './search/search.module';
@@ -17,6 +18,7 @@ import { SettingsModule } from './settings/settings.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
+    CoreModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -29,7 +31,7 @@ import { SettingsModule } from './settings/settings.module';
     }),
     PrismaModule,
     AuthModule,
-    UsersModule,
+    UserModule,
     AudioModule,
     FoldersModule,
     SearchModule,

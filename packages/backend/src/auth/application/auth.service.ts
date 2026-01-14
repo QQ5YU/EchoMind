@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { UsersService } from '../../users/application/users.service';
+import { UserService } from '../../user/application/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from '../dto/auth.dto';
-import { User } from '../../users/domain/user.entity';
+import { User } from '../../user/domain/user.entity';
 import { AuthResponseDto } from '@echomind/shared';
 import { DuplicateEntityException } from '../../core/error-handling/exceptions/application.exception';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
@@ -18,7 +18,7 @@ export class AuthService {
     email: string,
     pass: string,
   ): Promise<Omit<User, 'passwordHash'> | null> {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
     if (user && (await bcrypt.compare(pass, user.passwordHash))) {
       const { passwordHash: _, ...result } = user;
       return result;
@@ -33,13 +33,14 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
         createdAt: user.createdAt.toISOString(),
       },
     };
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const existingUser = await this.usersService.findByEmail(
+    const existingUser = await this.userService.findByEmail(
       registerDto.email!,
     );
 
@@ -50,9 +51,10 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(registerDto.password!, salt);
 
-    const user = await this.usersService.create(
+    const user = await this.userService.create(
       registerDto.email!,
       passwordHash,
+      registerDto.name,
     );
 
     return this.login(user);
