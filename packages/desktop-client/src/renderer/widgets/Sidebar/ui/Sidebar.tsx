@@ -5,6 +5,7 @@ import { useFileBrowserStore } from '@features/fileBrowser'
 import { useFileSystemStore } from '@entities/fileSystem'
 import { SidebarNavItem } from './SidebarNavItem'
 import { SidebarFolderList } from './SidebarFolderList'
+import { ROUTES } from '@renderer/shared/config/routes'
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate()
@@ -13,18 +14,18 @@ export const Sidebar: React.FC = () => {
   const uploadFile = useFileSystemStore((state) => state.uploadFile)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
-  const isSettingsPage = location.pathname === '/settings'
-  const isDashboardPage = location.pathname === '/dashboard'
+  const isSettingsPage = location.pathname === ROUTES.SETTINGS
+  const isDashboardPage = location.pathname === ROUTES.DASHBOARD
 
   const handleNavigateHome = () => {
     setCurrentFolder(null)
     if (!isDashboardPage) {
-      navigate('/dashboard')
+      navigate(ROUTES.DASHBOARD)
     }
   }
 
   const handleNavigateSettings = () => {
-    navigate('/settings')
+    navigate(ROUTES.SETTINGS)
   }
 
   const handleUploadClick = () => {

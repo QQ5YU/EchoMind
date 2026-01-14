@@ -4,6 +4,7 @@ import { useFileSystemStore } from "@entities/fileSystem";
 import { useFileBrowserStore } from "@features/fileBrowser";
 import { CreateFolderDialog } from "@features/fileSystem/ui/CreateFolderDialog";
 import { DeleteFolderDialog } from "@features/fileSystem/ui/DeleteFolderDialog";
+import { ROUTES } from "@renderer/shared/config/routes";
 
 export const SidebarFolderList: React.FC = () => {
   const navigate = useNavigate();
@@ -14,8 +15,8 @@ export const SidebarFolderList: React.FC = () => {
   const [isNewFolderVisible, setIsNewFolderVisible] = useState(false);
   const [deleteFolderId, setDeleteFolderId] = useState<string | null>(null);
 
-  const isSettingsPage = location.pathname === "/settings";
-  const isDashboardPage = location.pathname === "/dashboard";
+  const isSettingsPage = location.pathname === ROUTES.SETTINGS;
+  const isDashboardPage = location.pathname === ROUTES.DASHBOARD;
 
   const handleConfirmDeleteFolder = () => {
     if (deleteFolderId) {
@@ -27,7 +28,7 @@ export const SidebarFolderList: React.FC = () => {
   const handleNavigateDashboard = (folderId: string) => {
     setCurrentFolder(folderId);
     if (!isDashboardPage) {
-      navigate("/dashboard");
+      navigate(ROUTES.DASHBOARD);
     }
   };
 

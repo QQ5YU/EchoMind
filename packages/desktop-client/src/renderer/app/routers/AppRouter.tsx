@@ -7,13 +7,14 @@ import { PlaybackPage } from "@pages/Playback";
 import { SettingsPage } from "@pages/Settings";
 import { ProfilePage } from "@pages/Profile";
 import { ProtectedRoute, PublicRoute } from "../providers/RouteGuards";
+import { ROUTES } from "@renderer/shared/config/routes";
 
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route
-          path="/login"
+          path={ROUTES.LOGIN}
           element={
             <PublicRoute>
               <LoginPage />
@@ -21,7 +22,7 @@ export const AppRouter: React.FC = () => {
           }
         />
         <Route
-          path="/register"
+          path={ROUTES.REGISTER}
           element={
             <PublicRoute>
               <RegisterPage />
@@ -29,7 +30,7 @@ export const AppRouter: React.FC = () => {
           }
         />
         <Route
-          path="/dashboard"
+          path={ROUTES.DASHBOARD}
           element={
             <ProtectedRoute>
               <DashboardPage />
@@ -37,7 +38,7 @@ export const AppRouter: React.FC = () => {
           }
         />
         <Route
-          path="/playback/:id"
+          path={`${ROUTES.PLAYBACK}/:id`}
           element={
             <ProtectedRoute>
               <PlaybackPage />
@@ -45,7 +46,7 @@ export const AppRouter: React.FC = () => {
           }
         />
         <Route
-          path="/settings"
+          path={ROUTES.SETTINGS}
           element={
             <ProtectedRoute>
               <SettingsPage />
@@ -53,14 +54,17 @@ export const AppRouter: React.FC = () => {
           }
         />
         <Route
-          path="/profile"
+          path={ROUTES.PROFILE}
           element={
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path={ROUTES.HOME}
+          element={<Navigate to={ROUTES.DASHBOARD} replace />}
+        />
       </Routes>
     </BrowserRouter>
   );
