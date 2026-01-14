@@ -11,9 +11,7 @@ export const AudioFileSchema = z
     status: AudioStatusSchema,
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
-  })
-  .strict()
-  .required();
+  });
 
 export type AudioFileDto = z.infer<typeof AudioFileSchema>;
 
@@ -22,8 +20,6 @@ export const FileDeleteResponseSchema = z
     success: z.boolean(),
     message: z.string(),
     data: AudioFileSchema,
-  })
-  .strict()
-  .required();
+  });
 
 export type FileDeleteResponseDto = z.infer<typeof FileDeleteResponseSchema>;

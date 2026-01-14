@@ -10,27 +10,25 @@ export const FolderSchema: z.ZodType<any> = z.lazy(() =>
       createdAt: z.string().datetime(),
       children: z.array(FolderSchema).optional(),
     })
-    .strict()
     .required()
 );
 
 export type FolderDto = z.infer<typeof FolderSchema>;
 
-export const CreateFolderSchema = z.object({
-  name: z.string().min(1, "Folder name is required"),
-  parentId: z.string().optional(),
-});
+export const CreateFolderSchema = z
+  .object({
+    name: z.string().min(1, { message: "Folder name is required" }),
+    parentId: z.string().optional(),
+  })
+  .strict();
 
 export type CreateFolderDto = z.infer<typeof CreateFolderSchema>;
 
-export const FolderDeleteResponseSchema = z
-  .object({
-    success: z.boolean(),
-    message: z.string(),
-    data: FolderSchema,
-  })
-  .strict()
-  .required();
+export const FolderDeleteResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: FolderSchema,
+});
 
 export type FolderDeleteResponseDto = z.infer<
   typeof FolderDeleteResponseSchema
