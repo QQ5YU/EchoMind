@@ -3,6 +3,7 @@ import { FileNode, FolderNode } from './types'
 import { fileSystemApi } from '../api/fileSystemApi'
 import { toastService } from '@renderer/shared/services/toast-notification.service'
 import { ToastSeverity } from '@renderer/shared/enum/enum'
+import { handleApiError } from '@renderer/shared/api/utils'
 
 interface FileSystemState {
   folders: FolderNode[]
@@ -30,9 +31,9 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         fileSystemApi.fetchFolders()
       ])
       set({ files, folders, isLoading: false })
-    } catch (err: any) {
-      set({ isLoading: false, error: err.message || 'Failed to fetch data' })
-      toastService.show(ToastSeverity.ERROR, `Failed to load data: ${err.message || 'Unknown error'}`)
+    } catch (err) {
+      const message = handleApiError(err, 'Failed to load data');
+      set({ isLoading: false, error: message })
     }
   },
 
@@ -43,9 +44,8 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         folders: [...state.folders, newFolder]
       }))
       toastService.show(ToastSeverity.SUCCESS, `Folder "${name}" created successfully`)
-    } catch (err: any) {
-      console.error('Failed to create folder:', err)
-      toastService.show(ToastSeverity.ERROR, `Failed to create folder: ${err.message || 'Unknown error'}`)
+    } catch (err) {
+      handleApiError(err, 'Failed to create folder');
     }
   },
   
@@ -56,9 +56,8 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         files: [...state.files, newFile]
       }))
       toastService.show(ToastSeverity.SUCCESS, `File "${file.name}" uploaded successfully`)
-    } catch (err: any) {
-       console.error('Failed to upload file:', err)
-       toastService.show(ToastSeverity.ERROR, `Failed to upload file: ${err.message || 'Unknown error'}`)
+    } catch (err) {
+       handleApiError(err, 'Failed to upload file');
     }
   },
   
@@ -71,9 +70,8 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
             files: state.files.map(f => f.folderId === id ? { ...f, folderId: null } : f)
         }))
         toastService.show(ToastSeverity.SUCCESS, `Folder "${folderName}" deleted successfully`)
-    } catch (err: any) {
-        console.error("Delete folder failed", err)
-        toastService.show(ToastSeverity.ERROR, `Failed to delete folder: ${err.message || 'Unknown error'}`)
+    } catch (err) {
+        handleApiError(err, 'Failed to delete folder');
     }
   },
 
@@ -85,9 +83,8 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
             files: state.files.filter(f => f.id !== id)
         }))
         toastService.show(ToastSeverity.SUCCESS, `File "${fileName}" deleted successfully`)
-    } catch (err: any) {
-        console.error("Delete file failed", err)
-        toastService.show(ToastSeverity.ERROR, `Failed to delete file: ${err.message || 'Unknown error'}`)
+    } catch (err) {
+        handleApiError(err, 'Failed to delete file');
     }
   }
 }))

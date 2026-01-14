@@ -1,18 +1,25 @@
 import React from 'react'
 import { SelectButton } from 'primereact/selectbutton'
+import { ThemeMode } from '@renderer/shared/types/theme'
+
+interface ThemeOption {
+  label: string
+  value: ThemeMode
+  icon: string
+}
 
 interface ThemeSettingsProps {
-  theme: 'light' | 'dark'
-  onChange: (theme: 'light' | 'dark') => void
+  theme: ThemeMode
+  onChange: (theme: ThemeMode) => void
 }
 
 export const ThemeSettings: React.FC<ThemeSettingsProps> = ({ theme, onChange }) => {
-  const options = [
+  const options: ThemeOption[] = [
     { label: 'Light', value: 'light', icon: 'pi pi-sun' },
     { label: 'Dark', value: 'dark', icon: 'pi pi-moon' }
   ]
 
-  const itemTemplate = (option: any) => {
+  const itemTemplate = (option: ThemeOption) => {
     return (
       <div className="flex items-center gap-2">
         <i className={option.icon} />
