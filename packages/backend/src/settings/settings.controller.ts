@@ -21,7 +21,7 @@ export class SettingsController {
   ) {
     return this.settingsService.updateTranscriptionSettings(
       req.user.userId,
-      body.defaultLanguage,
+      body.defaultLanguage!,
     );
   }
 }
