@@ -9,3 +9,11 @@ export const UserSchema = z
   });
 
 export type UserDto = z.infer<typeof UserSchema>;
+
+export const UpdateUserSchema = z
+  .object({
+    name: z.string().min(1).optional(),
+  })
+  .strict();
+
+export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
