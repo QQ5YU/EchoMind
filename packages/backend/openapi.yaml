@@ -1,0 +1,392 @@
+openapi: 3.0.3
+info:
+  title: EchoMind API
+  version: '1.0'
+  contact: 'https://github.com/QQ5YU?tab=repositories'
+  description: Static OpenAPI spec for EchoMind
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login and receive an access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: Auth response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /api/user/info:
+    get:
+      tags:
+        - User
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    patch:
+      tags:
+        - User
+      summary: Update current user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/user/avatar:
+    post:
+      tags:
+        - User
+      summary: Upload or update user avatar
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/user/avatar/{id}:
+    get:
+      tags:
+        - User
+      summary: Stream user avatar
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Avatar image stream
+          content:
+            image/png: {}
+
+  /api/audio:
+    post:
+      tags:
+        - Audio
+      summary: Upload an audio file
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File accepted
+
+  /api/audio/{id}:
+    get:
+      tags:
+        - Audio
+      summary: Get audio file metadata
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Audio metadata
+    delete:
+      tags:
+        - Audio
+      summary: Delete audio file
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+
+  /api/audio/{id}/transcript:
+    get:
+      tags:
+        - Audio
+      summary: Get transcript for audio file
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transcript object
+
+  /api/audio/{id}/file:
+    get:
+      tags:
+        - Audio
+      summary: Stream audio file
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Audio stream
+          content:
+            audio/mpeg: {}
+
+  /api/folders:
+    post:
+      tags:
+        - Folders
+      summary: Create a folder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolder'
+      responses:
+        '201':
+          description: Created
+    get:
+      tags:
+        - Folders
+      summary: List folders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of folders
+
+  /api/folders/{id}:
+    delete:
+      tags:
+        - Folders
+      summary: Delete a folder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Folder deleted
+
+  /api/search:
+    get:
+      tags:
+        - Search
+      summary: Search transcripts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+
+  /api/settings/transcription:
+    get:
+      tags:
+        - Settings
+      summary: Get transcription settings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Settings
+    put:
+      tags:
+        - Settings
+      summary: Update transcription settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                defaultLanguage:
+                  type: string
+      responses:
+        '200':
+          description: Updated
+
+  /:
+    get:
+      tags:
+        - Health
+      summary: Root health check
+      responses:
+        '200':
+          description: Hello
+
+tags:
+  - name: Auth
+    description: Authentication and token endpoints
+  - name: User
+    description: User profile and avatar endpoints
+  - name: Audio
+    description: Audio upload, streaming, and transcript endpoints
+  - name: Folders
+    description: Folder management endpoints
+  - name: Search
+    description: Transcript search endpoints
+  - name: Settings
+    description: Application settings endpoints
+  - name: Health
+    description: Health check endpoints
+    
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Login:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    Register:
+      type: object
+      required: [email, password, confirmPassword]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        confirmPassword:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        avatarPath:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+    UpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+    CreateFolder:
+      type: object
+      properties:
+        name:
+          type: string
+        parentId:
+          type: string
