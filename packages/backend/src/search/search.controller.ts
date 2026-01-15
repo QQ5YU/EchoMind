@@ -1,7 +1,7 @@
 import { Controller, Get, Query, UseGuards, Request } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TranscriptRepository } from '../transcripts/domain/transcript.repository';
-import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
+import type { RequestWithUser } from '../auth/types/request-with-user.interface';
 
 @Controller('search')
 @UseGuards(JwtAuthGuard)
