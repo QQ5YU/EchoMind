@@ -3,6 +3,7 @@ export class User {
   email!: string;
   name?: string;
   passwordHash!: string;
+  avatarPath?: string;
   createdAt!: Date;
 
   constructor(partial: Partial<User>) {
