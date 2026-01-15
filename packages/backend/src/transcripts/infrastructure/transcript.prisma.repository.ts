@@ -8,8 +8,6 @@ export class TranscriptPrismaRepository implements TranscriptRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByAudioFileId(audioFileId: string): Promise<Transcript | null> {
-// ... (omitting lines for brevity in replace context, but I will provide the full block)
-// Actually I should just provide the change for the search method.
     const t = await this.prisma.transcript.findUnique({
       where: { audioFileId },
       include: { segments: { orderBy: { startTime: 'asc' } } },
@@ -47,11 +45,9 @@ export class TranscriptPrismaRepository implements TranscriptRepository {
   }
 
   async search(query: string, userId: string): Promise<SearchResult[]> {
-    // Basic text search for MVP fallback if vector search isn't ready
-    // We search segments where the audio file belongs to the user
     const segments = await this.prisma.transcriptSegment.findMany({
       where: {
-        text: { contains: query }, // SQLite case-insensitive depends on collation, but typically sensitive or requires setup
+        text: { contains: query },
         transcript: {
           audioFile: {
             userId: userId,
