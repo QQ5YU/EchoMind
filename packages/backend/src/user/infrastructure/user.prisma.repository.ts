@@ -15,9 +15,11 @@ export class UserPrismaRepository implements UserRepository {
         passwordHash: user.passwordHash,
       },
     });
+    
     return new User({
       ...createdUser,
       name: createdUser.name ?? undefined,
+      avatarPath: createdUser.avatarPath ?? undefined,
     });
   }
 
@@ -25,10 +27,13 @@ export class UserPrismaRepository implements UserRepository {
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
+
     if (!user) return null;
+    
     return new User({
       ...user,
       name: user.name ?? undefined,
+      avatarPath: user.avatarPath ?? undefined,
     });
   }
 
@@ -40,10 +45,14 @@ export class UserPrismaRepository implements UserRepository {
     return new User({
       ...user,
       name: user.name ?? undefined,
+      avatarPath: user.avatarPath ?? undefined,
     });
   }
 
-  async update(id: string, data: Partial<Omit<User, 'id' | 'createdAt' | 'passwordHash'>>): Promise<User> {
+  async update(
+    id: string,
+    data: Partial<Omit<User, 'id' | 'createdAt' | 'passwordHash'>>,
+  ): Promise<User> {
     const updated = await this.prisma.user.update({
       where: { id },
       data,
@@ -51,6 +60,7 @@ export class UserPrismaRepository implements UserRepository {
     return new User({
       ...updated,
       name: updated.name ?? undefined,
+      avatarPath: updated.avatarPath ?? undefined,
     });
   }
 }
