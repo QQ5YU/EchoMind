@@ -18,6 +18,7 @@ model User {
   id           String        @id @default(uuid())
   email        String        @unique
   name         String?
+  avatarPath   String?       @map("avatar_path")
   passwordHash String        @map("password_hash")
   createdAt    DateTime      @default(now()) @map("created_at")
   audioFiles   AudioFile[]
