@@ -40,3 +40,12 @@ export class InsufficientPermissionException extends ApplicationException {
     super(message);
   }
 }
+
+export class FileOperationException extends ApplicationException {
+  readonly errorCode = ApiErrorCode.INTERNAL_SERVER_ERROR;
+  readonly statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+
+  constructor(message: string) {
+    super(message);
+  }
+}
