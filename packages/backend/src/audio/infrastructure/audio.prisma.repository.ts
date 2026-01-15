@@ -1,28 +1,26 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { AudioFile } from '../domain/audio.entity';
 import { AudioRepository } from '../domain/audio.repository';
 import { AudioStatus as DomainAudioStatus } from '@echomind/shared';
+import { AudioStatus as PrismaAudioStatus } from '../../../generated/prisma/enums';
 import { Prisma } from '@prisma/client';
+import { EntityNotFoundException } from '../../core/error-handling/exceptions/application.exception';
 
 @Injectable()
 export class AudioPrismaRepository implements AudioRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    audio: Omit<AudioFile, 'id' | 'createdAt' | 'updatedAt'>,
+    audioFile: Omit<AudioFile, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<AudioFile> {
     const created = await this.prisma.audioFile.create({
       data: {
-        userId: audio.userId,
-        fileName: audio.fileName,
-        filePath: audio.filePath,
-        status: audio.status,
-        folderId: audio.folderId,
+        userId: audioFile.userId,
+        fileName: audioFile.fileName,
+        filePath: audioFile.filePath,
+        status: audioFile.status as PrismaAudioStatus,
+        folderId: audioFile.folderId,
       },
     });
 
@@ -44,14 +42,10 @@ export class AudioPrismaRepository implements AudioRepository {
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2025':
-            throw new NotFoundException('File does not exist.');
-          default:
-            throw new InternalServerErrorException('Failed to delete file.');
+        if (error.code === 'P2025') {
+          throw new EntityNotFoundException('AudioFile', id);
         }
       }
-
       throw error;
     }
   }
@@ -87,7 +81,7 @@ export class AudioPrismaRepository implements AudioRepository {
   ): Promise<AudioFile> {
     const updated = await this.prisma.audioFile.update({
       where: { id },
-      data: { status: status },
+      data: { status: status as PrismaAudioStatus },
     });
     return new AudioFile({
       ...updated,

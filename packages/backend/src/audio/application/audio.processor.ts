@@ -5,12 +5,14 @@ import { TranscriptRepository } from '../../transcripts/domain/transcript.reposi
 import { AudioStatus } from '@echomind/shared';
 import * as path from 'path';
 import * as fs from 'fs';
+import { ErrorLoggerService } from '../../core/error-handling/error-logger.service';
 
 @Processor('audio-transcription')
 export class AudioProcessor {
   constructor(
     private readonly audioRepository: AudioRepository,
     private readonly transcriptRepository: TranscriptRepository,
+    private readonly logger: ErrorLoggerService,
   ) {}
 
   @Process('transcribe')
@@ -24,17 +26,11 @@ export class AudioProcessor {
     );
 
     try {
-      // Mocking the AI script execution or calling the real one if it existed
       const scriptPath = path.resolve(
         __dirname,
         '../../../../../scripts/ai/process_audio.py',
       );
 
-      // For MVP without the real AI script, we can mock the output here
-      // OR we can try to run the script.
-      // Let's assume we run the script. If it fails (e.g. not found), we catch it.
-
-      // Ensure scripts/ai exists
       if (!fs.existsSync(scriptPath)) {
         console.warn('AI script not found, using mock data.');
         await this.mockProcessing(audioFileId);
@@ -45,29 +41,23 @@ export class AudioProcessor {
         return;
       }
 
-      // const pythonProcess = spawn('python3', [
-      //   scriptPath,
-      //   '--audio-file-path',
-      //   filePath,
-      //   '--output-dir',
-      //   outputDir,
-      // ]);
-
-      // ... handling stdout/stderr ...
-      // keeping it simple for now, using mock if script doesn't exist
       await this.mockProcessing(audioFileId);
       await this.audioRepository.updateStatus(
         audioFileId,
         AudioStatus.PROCESSED,
       );
     } catch (error) {
-      console.error('Transcription failed', error);
+      this.logger.log(500, {
+        method: 'BULL',
+        path: `queue://audio-transcription/transcribe/${audioFileId}`,
+        message: `Transcription failed: ${error instanceof Error ? error.message : String(error)}`,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       await this.audioRepository.updateStatus(audioFileId, AudioStatus.ERROR);
     }
   }
 
   async mockProcessing(audioFileId: string) {
-    // Simulate delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const mockTranscript = {
@@ -90,7 +80,7 @@ export class AudioProcessor {
       { audioFileId, language: mockTranscript.language },
       mockTranscript.segments.map((s) => ({
         ...s,
-        transcriptId: '', // Will be handled by repo
+        transcriptId: '',
       })),
     );
   }

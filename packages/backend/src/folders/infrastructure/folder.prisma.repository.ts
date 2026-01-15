@@ -1,13 +1,12 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { Folder } from '../domain/folder.entity';
 import { FolderRepository } from '../domain/folder.repository';
 import { Prisma } from '@prisma/client';
+import {
+  DuplicateEntityException,
+  EntityNotFoundException,
+} from '../../core/error-handling/exceptions/application.exception';
 
 @Injectable()
 export class FolderPrismaRepository implements FolderRepository {
@@ -16,14 +15,23 @@ export class FolderPrismaRepository implements FolderRepository {
   async create(
     folder: Omit<Folder, 'id' | 'createdAt' | 'children'>,
   ): Promise<Folder> {
-    const created = await this.prisma.folder.create({
-      data: {
-        userId: folder.userId,
-        name: folder.name,
-        parentId: folder.parentId,
-      },
-    });
-    return new Folder(created);
+    try {
+      const created = await this.prisma.folder.create({
+        data: {
+          userId: folder.userId,
+          name: folder.name,
+          parentId: folder.parentId,
+        },
+      });
+      return new Folder(created);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new DuplicateEntityException('Folder', 'name');
+        }
+      }
+      throw error;
+    }
   }
 
   async findAllByUserId(userId: string): Promise<Folder[]> {
@@ -44,18 +52,10 @@ export class FolderPrismaRepository implements FolderRepository {
       return new Folder(deleted);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2025':
-            throw new NotFoundException('Folder does not exist.');
-          case 'P2003':
-            throw new BadRequestException(
-              'Cannot delete folder: it contains files or subfolders.',
-            );
-          default:
-            throw new InternalServerErrorException('Failed to delete folder.');
+        if (error.code === 'P2025') {
+          throw new EntityNotFoundException('Folder', id);
         }
       }
-
       throw error;
     }
   }

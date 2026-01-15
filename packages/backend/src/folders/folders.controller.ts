@@ -7,11 +7,16 @@ import {
   Request,
   Delete,
   Param,
+  BadRequestException,
 } from '@nestjs/common';
 import { FoldersService } from './application/folders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
-import { CreateFolderDto, FolderDeleteResponseDto, FolderDto } from './dto/folders.dto';
+import {
+  CreateFolderDto,
+  FolderDeleteResponseDto,
+  FolderDto,
+} from './dto/folders.dto';
 
 @Controller('folders')
 @UseGuards(JwtAuthGuard)

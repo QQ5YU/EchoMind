@@ -1,20 +1,17 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import 'multer';
 import { AudioRepository } from '../domain/audio.repository';
 import { AudioFile } from '../domain/audio.entity';
-import {
-  AudioFileDto,
-  AudioStatus,
-  FileDeleteResponseDto,
-} from '@echomind/shared';
+import { AudioStatus as DomainAudioStatus } from '@echomind/shared';
+import { AudioFileDto, FileDeleteResponseDto } from '../dto/audio.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
+import {
+  EntityNotFoundException,
+  InsufficientPermissionException,
+} from '../../core/error-handling/exceptions/application.exception';
 
 @Injectable()
 export class AudioService {
@@ -38,20 +35,35 @@ export class AudioService {
 
     fs.writeFileSync(filePath, file.buffer);
 
-    const audioFile = await this.audioRepository.create({
-      userId,
-      fileName: file.originalname,
-      filePath,
-      status: AudioStatus.PENDING,
-      folderId: null,
-    });
+    try {
+      const audioFile = await this.audioRepository.create({
+        userId,
+        fileName: file.originalname,
+        filePath,
+        status: DomainAudioStatus.PENDING,
+        folderId: null,
+      });
 
-    await this.audioQueue.add('transcribe', {
-      audioFileId: audioFile.id,
-      filePath: audioFile.filePath,
-    });
+      await this.audioQueue.add('transcribe', {
+        audioFileId: audioFile.id,
+        filePath: audioFile.filePath,
+      });
 
-    return this.toAudioFileDto(audioFile);
+      return this.toAudioFileDto(audioFile);
+    } catch (error) {
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+          console.log(`[Rollback] Deleted orphaned file: ${filePath}`);
+        } catch (unlinkError) {
+          console.error(
+            `[Rollback Failed] Could not delete file: ${filePath}`,
+            unlinkError,
+          );
+        }
+      }
+      throw error;
+    }
   }
 
   async deleteFile(userId: string, id: string): Promise<FileDeleteResponseDto> {
@@ -74,8 +86,11 @@ export class AudioService {
 
   async findOne(id: string, userId: string): Promise<AudioFileDto> {
     const file = await this.audioRepository.findById(id);
-    if (!file) throw new NotFoundException('Audio file not found');
-    if (file.userId !== userId) throw new ForbiddenException('Access denied');
+    
+    if (!file) throw new EntityNotFoundException('AudioFile', id);
+
+    if (file.userId !== userId)
+      throw new InsufficientPermissionException('Access denied');
     return this.toAudioFileDto(file);
   }
 
@@ -83,10 +98,10 @@ export class AudioService {
     return {
       id: audioFile.id,
       userId: audioFile.userId,
-      folderId: audioFile.folderId,
+      folderId: audioFile.folderId ?? null,
       fileName: audioFile.fileName,
       filePath: audioFile.filePath,
-      status: audioFile.status,
+      status: audioFile.status as unknown as DomainAudioStatus,
       createdAt: audioFile.createdAt.toISOString(),
       updatedAt: audioFile.updatedAt.toISOString(),
     };
