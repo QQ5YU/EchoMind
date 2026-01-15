@@ -10,19 +10,17 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   Res,
-  NotFoundException,
   Delete,
 } from '@nestjs/common';
-import 'multer';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response, Request as ExpressRequest } from 'express';
+import * as fs from 'fs';
+import { AudioFileDto, FileDeleteResponseDto } from './dto/audio.dto';
 import { AudioService } from './application/audio.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
 import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
-import type { Response } from 'express';
-import * as fs from 'fs';
-import { AudioFileDto, FileDeleteResponseDto } from '@echomind/shared';
-
 import { TranscriptRepository } from '../transcripts/domain/transcript.repository';
+import { EntityNotFoundException } from '../core/error-handling/exceptions/application.exception';
 
 @Controller('audio')
 export class AudioController {
@@ -78,22 +76,26 @@ export class AudioController {
   ) {
     await this.audioService.findOne(id, req.user.userId);
     const transcript = await this.transcriptRepository.findByAudioFileId(id);
-    if (!transcript) throw new NotFoundException('Transcript not found');
+    if (!transcript) throw new EntityNotFoundException('Transcript', id);
     return transcript;
   }
 
   @Get(':id/file')
-  async streamFile(@Param('id') id: string, @Res() res: Response) {
+  async streamFile(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Request() req: ExpressRequest,
+  ) {
     const file = await this.audioService.findByIdInternal(id);
-    if (!file) throw new NotFoundException('File not found');
+    if (!file) throw new EntityNotFoundException('AudioFile', id);
 
     if (!fs.existsSync(file.filePath)) {
-      throw new NotFoundException('File on disk not found');
+      throw new EntityNotFoundException('AudioFile on disk', file.filePath);
     }
 
     const stat = fs.statSync(file.filePath);
     const fileSize = stat.size;
-    const range = res.req.headers.range;
+    const range = req.headers.range;
 
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');
