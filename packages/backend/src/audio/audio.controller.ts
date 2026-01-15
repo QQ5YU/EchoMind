@@ -13,12 +13,13 @@ import {
   Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+
 import { Response, Request as ExpressRequest } from 'express';
 import * as fs from 'fs';
 import { AudioFileDto, FileDeleteResponseDto } from './dto/audio.dto';
 import { AudioService } from './application/audio.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
+import type { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { TranscriptRepository } from '../transcripts/domain/transcript.repository';
 import { EntityNotFoundException } from '../core/error-handling/exceptions/application.exception';
 

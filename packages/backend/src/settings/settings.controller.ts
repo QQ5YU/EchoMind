@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Body, UseGuards, Request } from '@nestjs/common';
 import { SettingsService } from './application/settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
+import type { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { UpdateSettingsDto } from './dto/settings.dto';
 
 @Controller('settings')
