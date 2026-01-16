@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 .pnpm-store/
 
 packages/backend/storage/*
+
+# Local development SQLite DB
+packages/backend/dev.db
