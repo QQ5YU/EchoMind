@@ -6,7 +6,7 @@ import { toastService } from "@renderer/shared/services/toast-notification.servi
 import { ToastSeverity } from "@renderer/shared/enum/enum";
 
 export const useProfile = () => {
-  const { user, setAuth, token } = useAuthStore();
+  const { user, token, setAuth, updateUser, clearAvatarBlobUrl } = useAuthStore();
   const [isUpdating, setIsUpdating] = useState(false);
 
   const updateProfile = useCallback(async (name: string) => {
@@ -28,9 +28,35 @@ export const useProfile = () => {
     }
   }, [user, token, setAuth]);
 
+  const uploadAvatar = useCallback(async (file: File) => {
+    if (!user || !token) {
+      toastService.show(ToastSeverity.ERROR, "User not authenticated.");
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const { data: updatedUser } = await userApi.uploadAvatar(formData);
+      
+      updateUser(updatedUser);
+      clearAvatarBlobUrl();
+      
+      toastService.show(ToastSeverity.SUCCESS, "Avatar updated successfully");
+    } catch (err) {
+      handleApiError(err, "Failed to upload avatar");
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [user, token, updateUser, clearAvatarBlobUrl]);
+
+
   return {
     user,
     isUpdating,
-    updateProfile
+    updateProfile,
+    uploadAvatar,
   };
 };

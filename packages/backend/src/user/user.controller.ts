@@ -40,6 +40,7 @@ export class UserController {
       id: user.id,
       email: user.email,
       name: user.name,
+      avatarPath: user.avatarPath,
       createdAt: user.createdAt.toISOString(),
     };
   }
@@ -59,6 +60,7 @@ export class UserController {
       id: user.id,
       email: user.email,
       name: user.name,
+      avatarPath: user.avatarPath,
       createdAt: user.createdAt.toISOString(),
     };
   }

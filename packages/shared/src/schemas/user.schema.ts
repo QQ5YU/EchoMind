@@ -5,6 +5,7 @@ export const UserSchema = z
     id: z.string().uuid(),
     email: z.string().email(),
     name: z.string().min(1).optional(),
+    avatarPath: z.string().optional(),
     createdAt: z.string().datetime(),
   });
 

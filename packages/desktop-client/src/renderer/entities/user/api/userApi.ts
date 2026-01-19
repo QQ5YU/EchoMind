@@ -23,4 +23,18 @@ export const userApi = {
   updateProfile: (data: UpdateUser) => {
     return api.patch<User>("/api/user/info", data);
   },
+
+  uploadAvatar: (data: FormData) => {
+    return api.post<User>("/api/user/avatar", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+
+  getAvatar: (userId: string) => {
+    return api.get<Blob>(`/api/user/avatar/${userId}`, {
+      responseType: 'blob',
+    });
+  },
 };

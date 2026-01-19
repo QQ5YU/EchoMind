@@ -6,9 +6,12 @@ import { Toast } from "primereact/toast";
 import { ProfileAvatar } from "./ui/ProfileAvatar";
 import { ProfileForm } from "./ui/ProfileForm";
 import { useProfile } from "./hooks/useProfile";
+import { userApi } from "@entities/user/api/userApi";
+import { useAuthStore } from "@entities/user/model/store";
 
 export const ProfilePage: React.FC = () => {
-  const { user, updateProfile, isUpdating } = useProfile();
+  const { user, updateProfile, uploadAvatar } = useProfile();
+  const { avatarBlobUrl, setAvatarBlobUrl } = useAuthStore();
   const [name, setName] = useState<string>(user?.name || "");
   const [email, setEmail] = useState<string>(user?.email || "");
   const toast = useRef<Toast>(null);
@@ -18,7 +21,26 @@ export const ProfilePage: React.FC = () => {
       setName(user.name || "");
       setEmail(user.email || "");
     }
-  }, [user]);
+
+    let objectUrl: string;
+    if (user?.id && user.avatarPath && !avatarBlobUrl) {
+      userApi
+        .getAvatar(user.id)
+        .then((response) => {
+          objectUrl = URL.createObjectURL(response.data);
+          setAvatarBlobUrl(objectUrl);
+        })
+        .catch((error) => {
+          console.error("Failed to load avatar:", error);
+        });
+    }
+
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [user, avatarBlobUrl, setAvatarBlobUrl]);
 
   const handleSave = async () => {
     await updateProfile(name);
@@ -50,7 +72,8 @@ export const ProfilePage: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 border border-transparent dark:border-gray-700">
           <ProfileAvatar
             label={getInitials(user?.name, user?.email)}
-            onChange={() => console.log("Change avatar clicked")}
+            image={avatarBlobUrl ?? undefined}
+            onChange={uploadAvatar}
           />
 
           <ProfileForm
