@@ -36,7 +36,6 @@ export const Sidebar: React.FC = () => {
     const file = e.target.files?.[0]
     if (file) {
       uploadFile(file)
-      // Reset input value to allow uploading the same file again if needed
       e.target.value = ''
     }
   }
