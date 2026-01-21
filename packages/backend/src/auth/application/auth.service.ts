@@ -6,12 +6,14 @@ import { RegisterDto } from '../dto/auth.dto';
 import { User } from '../../user/domain/user.entity';
 import { AuthResponseDto } from '@echomind/shared';
 import { DuplicateEntityException } from '../../core/error-handling/exceptions/application.exception';
+import { UserMapper } from '../../user/user.mapper';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private userMapper: UserMapper,
   ) {}
 
   async validateUser(
@@ -28,22 +30,15 @@ export class AuthService {
 
   async login(user: User): Promise<AuthResponseDto> {
     const payload = { email: user.email, sub: user.id };
+
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        avatarPath: user.avatarPath,
-        createdAt: user.createdAt.toISOString(),
-      },
+      user: this.userMapper.toDto(user),
     };
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const existingUser = await this.userService.findByEmail(
-      registerDto.email!,
-    );
+    const existingUser = await this.userService.findByEmail(registerDto.email!);
 
     if (existingUser) {
       throw new DuplicateEntityException('User', 'email');

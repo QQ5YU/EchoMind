@@ -53,7 +53,7 @@ export class PrismaErrorStrategy implements ErrorStrategy {
       }
     } else if (error instanceof Prisma.PrismaClientValidationError) {
       status = HttpStatus.BAD_REQUEST;
-      message = 'Invalid database query';
+      message = error.message;
       errorType = 'Bad Request';
       errorCode = ApiErrorCode.PRISMA_VALIDATION_ERROR;
     } else if (error instanceof Prisma.PrismaClientInitializationError) {

@@ -1,23 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../domain/user.repository';
 import { User } from '../domain/user.entity';
-import * as fs from 'fs';
 import * as path from 'path';
+import { StorageService } from '../../core/storage/storage.service';
 import {
   EntityNotFoundException,
   FileOperationException,
 } from '../../core/error-handling/exceptions/application.exception';
+import { ReadStream } from 'fs';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly storageService: StorageService,
+  ) {}
 
   async create(
     email: string,
     passwordHash: string,
     name?: string,
   ): Promise<User> {
-    return this.userRepository.create({ email, passwordHash, name });
+    return this.userRepository.create({
+      email,
+      passwordHash,
+      name,
+      avatarPath: null,
+      avatarUpdatedAt: null,
+    });
   }
 
   async findById(id: string): Promise<User | null> {
@@ -34,37 +44,31 @@ export class UserService {
 
   async updateAvatar(id: string, file: Express.Multer.File): Promise<User> {
     const user = await this.userRepository.findById(id);
+    if (!user) throw new EntityNotFoundException('User', id);
 
-    if (user && user.avatarPath) {
-      const oldPath = path.join(process.cwd(), user.avatarPath);
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
-      }
-    }
-
-    const uploadDir = path.join(process.cwd(), 'storage', 'avatars');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    if (user.avatarPath) {
+      await this.storageService.delete(user.avatarPath);
     }
 
     const fileExt = path.extname(file.originalname).toLowerCase();
     const fileName = `avatar-${id}${fileExt}`;
-    const filePath = path.join(uploadDir, fileName);
+    const relativePath = `storage/avatars/${fileName}`;
 
     try {
-      fs.writeFileSync(filePath, file.buffer);
+      await this.storageService.save(relativePath, file.buffer);
     } catch (error) {
       throw new FileOperationException(
         'Failed to write avatar file to storage',
       );
     }
 
-    const dbPath = `storage/avatars/${fileName}`;
-
-    return this.userRepository.update(id, { avatarPath: dbPath });
+    return this.userRepository.update(id, {
+      avatarPath: relativePath,
+      avatarUpdatedAt: new Date(),
+    });
   }
 
-  async getAvatarStream(id: string): Promise<fs.ReadStream> {
+  async getAvatarStream(id: string): Promise<ReadStream> {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
@@ -75,12 +79,10 @@ export class UserService {
       throw new EntityNotFoundException('Avatar', id);
     }
 
-    const absolutePath = path.join(process.cwd(), user.avatarPath);
-
-    if (!fs.existsSync(absolutePath)) {
-      throw new EntityNotFoundException('AvatarFile', absolutePath);
+    try {
+      return this.storageService.getReadStream(user.avatarPath);
+    } catch (error) {
+      throw new EntityNotFoundException('AvatarFile', user.avatarPath);
     }
-
-    return fs.createReadStream(absolutePath);
   }
 }

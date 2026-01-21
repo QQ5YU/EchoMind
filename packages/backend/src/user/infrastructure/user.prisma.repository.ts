@@ -41,7 +41,9 @@ export class UserPrismaRepository implements UserRepository {
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
+
     if (!user) return null;
+
     return new User({
       ...user,
       name: user.name ?? undefined,
@@ -57,6 +59,7 @@ export class UserPrismaRepository implements UserRepository {
       where: { id },
       data,
     });
+
     return new User({
       ...updated,
       name: updated.name ?? undefined,

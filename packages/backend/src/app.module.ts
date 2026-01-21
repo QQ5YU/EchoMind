@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
@@ -17,6 +18,13 @@ import { SettingsModule } from './settings/settings.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
+      validationSchema: Joi.object({
+        STORAGE_ROOT: Joi.string().default('storage'),
+        API_BASE_URL: Joi.string().uri().default('http://localhost:3000'),
+        // Keep other existing required envs if needed, or just validate new ones for now
+        REDIS_HOST: Joi.string().default('localhost'),
+        REDIS_PORT: Joi.number().default(6379),
+      }),
     }),
     CoreModule,
     BullModule.forRootAsync({
@@ -40,5 +48,4 @@ import { SettingsModule } from './settings/settings.module';
   controllers: [AppController],
   providers: [AppService],
 })
-
 export class AppModule {}

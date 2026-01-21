@@ -17,6 +17,7 @@ export class PrismaService
 
     super({
       adapter,
+      log: ['error'],
     });
   }
 
