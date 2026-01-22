@@ -1,4 +1,4 @@
-import { api } from "@renderer/app/utils/api";
+import { api } from "@shared/api";
 import {
   AuthResponse,
   LoginRequest,
@@ -6,6 +6,7 @@ import {
   User,
   UpdateUser,
 } from "../model/types";
+import { AxiosProgressEvent } from "axios";
 
 export const userApi = {
   login: (data: LoginRequest) => {
@@ -24,17 +25,21 @@ export const userApi = {
     return api.patch<User>("/api/user/info", data);
   },
 
-  uploadAvatar: (data: FormData) => {
+  uploadAvatar: (
+    data: FormData,
+    onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
+  ) => {
     return api.post<User>("/api/user/avatar", data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress,
     });
   },
 
-  getAvatar: (userId: string) => {
-    return api.get<Blob>(`/api/user/avatar/${userId}`, {
-      responseType: 'blob',
+  getAvatar: (url: string) => {
+    return api.get<Blob>(url, {
+      responseType: "blob",
     });
   },
 };

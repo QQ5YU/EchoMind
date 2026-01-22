@@ -3,34 +3,26 @@ import { Layout } from "@shared/ui/Layout";
 import { Sidebar } from "@widgets/Sidebar";
 import { UserMenu } from "@widgets/UserMenu";
 import { Button } from "primereact/button";
-import { Toast } from "primereact/toast";
 import { TranscriptionSettings } from "@features/settings/ui/TranscriptionSettings";
 import { ThemeSettings } from "@features/settings/ui/ThemeSettings";
 import { useSettingsStore } from "@entities/settings";
+import { toastService, ToastSeverity } from "@renderer/shared";
 
 export const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useSettingsStore();
   const [tempLanguage, setTempLanguage] = useState("en");
   const [tempTheme, setTempTheme] = useState<"light" | "dark">(theme);
-  const toast = useRef<Toast>(null);
 
   const handleSave = () => {
     setTheme(tempTheme);
 
-    // Simulate API call
     setTimeout(() => {
-      toast.current?.show({
-        severity: "success",
-        summary: "Success",
-        detail: "Settings saved successfully",
-        life: 3000,
-      });
-    }, 500);
+      toastService.show(ToastSeverity.SUCCESS, "Settings saved successfully");
+    }, 300);
   };
 
   return (
     <Layout sidebar={<Sidebar />} headerRight={<UserMenu />}>
-      <Toast ref={toast} />
       <div className="max-w-3xl mx-auto py-8">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-8">
           App Settings

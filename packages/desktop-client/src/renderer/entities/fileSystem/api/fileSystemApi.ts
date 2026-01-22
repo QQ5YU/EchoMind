@@ -1,4 +1,4 @@
-import { api } from "@renderer/app/utils/api";
+import { api } from "@shared/api";
 import { FileNode, FolderNode } from "../model/types";
 import { AudioFileDto, FolderDto } from "@echomind/shared";
 
@@ -25,7 +25,7 @@ export const fileSystemApi = {
 
   createFolder: async (
     name: string,
-    parentId?: string
+    parentId?: string,
   ): Promise<FolderNode> => {
     const { data } = await api.post<FolderDto>("/api/folders", {
       name,

@@ -12,7 +12,14 @@ export default defineConfig({
     },
     build: {
       rollupOptions: {
-        external: ["nestjs-zod", "clone-deep", "multer", "@prisma/client"],
+        external: [
+          "nestjs-zod",
+          "clone-deep",
+          "multer",
+          "@prisma/client",
+          "dotenv/config",
+          "dotenv",
+        ],
       },
       externalizeDeps: {},
     },

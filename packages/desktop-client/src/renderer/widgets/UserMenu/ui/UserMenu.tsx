@@ -1,36 +1,16 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { Menu } from "primereact/menu";
 import { Avatar } from "primereact/avatar";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@entities/user/model/store";
-import { userApi } from "@entities/user/api/userApi";
 import { ROUTES } from "@renderer/shared/config/routes";
+import { getInitials, useAvatarImage } from "@entities/user";
 
 export const UserMenu: React.FC = () => {
   const menu = useRef<Menu>(null);
   const navigate = useNavigate();
-  const { user, logout, avatarBlobUrl, setAvatarBlobUrl } = useAuthStore();
-
-  useEffect(() => {
-    let objectUrl: string;
-    if (user?.id && user.avatarPath && !avatarBlobUrl) {
-      userApi
-        .getAvatar(user.id)
-        .then((response) => {
-          objectUrl = URL.createObjectURL(response.data);
-          setAvatarBlobUrl(objectUrl);
-        })
-        .catch((error) => {
-          console.error("Failed to load avatar:", error);
-        });
-    }
-
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-  }, [user?.id, user?.avatarPath, avatarBlobUrl, setAvatarBlobUrl]);
+  const { user, logout } = useAuthStore();
+  const displayImage = useAvatarImage(user?.avatarUrl);
 
   const handleLogout = () => {
     logout();
@@ -49,10 +29,7 @@ export const UserMenu: React.FC = () => {
         {
           label: "Settings",
           icon: "pi pi-cog",
-          command: () => navigate(ROUTES.PROFILE),
-        },
-        {
-          separator: true,
+          command: () => navigate(ROUTES.SETTINGS),
         },
         {
           label: "Logout",
@@ -64,7 +41,7 @@ export const UserMenu: React.FC = () => {
   ];
 
   const displayName = user?.name || user?.email || "User";
-  const avatarLabel = displayName.substring(0, 2).toUpperCase();
+  const avatarLabel = getInitials(user?.name, user?.email);
 
   return (
     <div className="relative">
@@ -90,8 +67,8 @@ export const UserMenu: React.FC = () => {
           </p>
         </div>
         <Avatar
-          label={avatarBlobUrl ? undefined : avatarLabel}
-          image={avatarBlobUrl ?? undefined}
+          label={displayImage ? undefined : avatarLabel}
+          image={displayImage ?? undefined}
           shape="circle"
           className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
           size="normal"
