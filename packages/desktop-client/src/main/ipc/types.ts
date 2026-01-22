@@ -1,31 +1,24 @@
-import { Key } from 'path-to-regexp';
+import { Key } from "path-to-regexp";
 
-/**
- * IPC request structure from the renderer
- */
 export interface IpcRequest {
   url: string;
   method: string;
-  data?: any;
-  params?: any;
-  headers?: any;
+  data?: unknown;
+  params?: Record<string, unknown>;
+  headers?: Record<string, unknown>;
 }
 
-/**
- * Internal structure for route handlers
- */
 export interface RouteHandler {
-  target: any;
+  target: Record<string, unknown>;
   methodName: string;
   httpMethod: string;
   regex: RegExp;
   keys: Key[];
-  paramMetadata: any;
+  paramMetadata?: Record<string, { data?: string }>;
 }
 
-/**
- * NestJS internal parameter type enumeration
- */
+export type RouteParams = Record<string, string>;
+
 export enum RouteParamtypes {
   REQUEST = 0,
   RESPONSE = 1,

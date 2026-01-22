@@ -1,17 +1,16 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
+import type { IpcApi } from "@renderer/shared/types";
 
-const api = {
-  invoke: (channel: string, data?: any) => ipcRenderer.invoke(channel, data),
-  send: (channel: string, data?: any) => ipcRenderer.send(channel, data),
-  on: (channel: string, callback: (...args: any[]) => void) => {
+const api: IpcApi = {
+  invoke: (channel: string, data?: unknown) =>
+    ipcRenderer.invoke(channel, data),
+  send: (channel: string, data?: unknown) => ipcRenderer.send(channel, data),
+  on: (channel: string, callback: (...args: unknown[]) => void) => {
     ipcRenderer.on(channel, (_event, ...args) => callback(...args));
   },
 };
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld("electron", electronAPI);
@@ -20,8 +19,6 @@ if (process.contextIsolated) {
     console.error(error);
   }
 } else {
-  // @ts-ignore (define in dts)
   window.electron = electronAPI;
-  // @ts-ignore (define in dts)
   window.api = api;
 }
