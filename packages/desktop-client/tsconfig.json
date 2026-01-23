@@ -3,7 +3,11 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -19,19 +23,57 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "@backend/*": ["../backend/src/*"],
-      "@renderer/*": ["src/renderer/*"],
-      "@app/*": ["src/renderer/app/*"],
-      "@pages/*": ["src/renderer/pages/*"],
-      "@features": ["src/renderer/features"],
-      "@features/*": ["src/renderer/features/*"],
-      "@widgets": ["src/renderer/widgets"],
-      "@widgets/*": ["src/renderer/widgets/*"],
-      "@entities": ["src/renderer/entities"],
-      "@entities/*": ["src/renderer/entities/*"],
-      "@shared": ["src/renderer/shared"],
-      "@shared/*": ["src/renderer/shared/*"]
+      "@backend/*": [
+        "../backend/src/*"
+      ],
+      "@echomind/shared": [
+        "../shared/src"
+      ],
+      "@renderer/*": [
+        "src/renderer/*"
+      ],
+      "@app/*": [
+        "src/renderer/app/*"
+      ],
+      "@pages/*": [
+        "src/renderer/pages/*"
+      ],
+      "@features": [
+        "src/renderer/features"
+      ],
+      "@features/*": [
+        "src/renderer/features/*"
+      ],
+      "@widgets": [
+        "src/renderer/widgets"
+      ],
+      "@widgets/*": [
+        "src/renderer/widgets/*"
+      ],
+      "@entities": [
+        "src/renderer/entities"
+      ],
+      "@entities/*": [
+        "src/renderer/entities/*"
+      ],
+      "@shared": [
+        "src/renderer/shared"
+      ],
+      "@shared/*": [
+        "src/renderer/shared/*"
+      ],
+      "@shared-core/": [
+        "src/shared/"
+      ],
+      "@shared-core/*": [
+        "src/shared/*"
+      ]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "electron.vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "electron.vite.config.ts"
+  ]
 }

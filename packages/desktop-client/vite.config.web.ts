@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
         "@entities": resolve(__dirname, "src/renderer/entities"),
         "@widgets": resolve(__dirname, "src/renderer/widgets"),
         "@shared": resolve(__dirname, "src/renderer/shared"),
+        "@shared-core": resolve(__dirname, "src/shared"),
         "@echomind/shared": resolve(__dirname, "../shared/src/index.ts"),
       },
     },
