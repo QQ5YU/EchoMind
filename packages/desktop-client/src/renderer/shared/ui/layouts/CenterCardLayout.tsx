@@ -2,15 +2,15 @@ import React from "react";
 import logo from "@renderer/assets/logo/light/logo.svg";
 import logoDark from "@renderer/assets/logo/dark/logo-dark.svg";
 
-interface AuthLayoutProps {
+interface CenterCardLayoutProps {
   title: string;
   subtitle: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  logoHeight?: string; 
+  logoHeight?: string;
 }
 
-export const AuthLayout: React.FC<AuthLayoutProps> = ({
+export const CenterCardLayout: React.FC<CenterCardLayoutProps> = ({
   title,
   subtitle,
   children,

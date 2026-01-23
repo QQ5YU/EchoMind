@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout } from "@shared/ui/Layout";
+import { MainLayout } from "@shared/ui";
 import { Sidebar } from "@widgets/Sidebar";
 import { UserMenu } from "@widgets/UserMenu";
 import { SearchBar } from "@features/search";
@@ -15,11 +15,11 @@ export const DashboardPage: React.FC = () => {
   }, [fetchAll]);
 
   return (
-    <Layout sidebar={<Sidebar />} headerRight={<UserMenu />}>
+    <MainLayout sidebar={<Sidebar />} headerRight={<UserMenu />}>
       <div className="max-w-5xl mx-auto">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
         <FileExplorer searchQuery={searchQuery} />
       </div>
-    </Layout>
+    </MainLayout>
   );
 };

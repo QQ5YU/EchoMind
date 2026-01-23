@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout } from "@shared/ui/Layout";
+import { MainLayout } from "@shared/ui";
 import { UserMenu } from "@widgets/UserMenu";
 import { Button } from "primereact/button";
 import {
@@ -29,7 +29,7 @@ export const PlaybackPage: React.FC = () => {
   ];
 
   return (
-    <Layout headerRight={<UserMenu />}>
+    <MainLayout headerRight={<UserMenu />}>
       <div className="flex flex-col h-full max-w-6xl mx-auto gap-6">
         <header className="flex items-center justify-between">
           <div>
@@ -67,6 +67,6 @@ export const PlaybackPage: React.FC = () => {
           />
         </div>
       </div>
-    </Layout>
+    </MainLayout>
   );
 };

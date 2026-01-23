@@ -2,7 +2,8 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Message } from "primereact/message";
 
-import { AuthLayout } from "@renderer/shared/ui/Auth/AuthLayout";
+import { CenterCardLayout } from "@renderer/shared/ui/layouts/CenterCardLayout";
+
 import { ROUTES } from "@renderer/shared/config/routes";
 import { useRegister } from "./hooks/useRegister";
 import { RegisterForm, RegisterFormData } from "./ui/RegisterForm";
@@ -19,7 +20,7 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout
+    <CenterCardLayout
       title="Create Account"
       subtitle="Join us and start your journey"
       footer={
@@ -43,6 +44,6 @@ export const RegisterPage: React.FC = () => {
       )}
 
       <RegisterForm onSubmit={handleRegister} serverErrors={fieldErrors} />
-    </AuthLayout>
+    </CenterCardLayout>
   );
 };

@@ -2,7 +2,8 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Message } from "primereact/message";
 
-import { AuthLayout } from "@renderer/shared/ui/Auth/AuthLayout";
+import { CenterCardLayout } from "@renderer/shared/ui/layouts/CenterCardLayout";
+
 import { ROUTES } from "@renderer/shared/config/routes";
 import { useLogin } from "./hooks/useLogin";
 import { LoginForm, LoginFormData } from "./ui/LoginForm";
@@ -19,7 +20,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout
+    <CenterCardLayout
       title="Welcome Back"
       subtitle="Sign in to continue your journey"
       footer={
@@ -42,6 +43,6 @@ export const LoginPage: React.FC = () => {
         </div>
       )}
       <LoginForm onSubmit={handleLogin} />
-    </AuthLayout>
+    </CenterCardLayout>
   );
 };

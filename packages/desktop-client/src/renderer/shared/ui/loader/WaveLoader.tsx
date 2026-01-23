@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { cn } from "@shared/utils";
+import { cn } from "@renderer/shared/utils/css";
 
 interface WaveLoaderProps {
   size: number;
@@ -19,9 +19,9 @@ export const WaveLoader: React.FC<WaveLoaderProps> = ({
 
   const waveConfig = useMemo(
     () => ({
-      amplitude: size * 0.05, 
-      frequency: 4 / size, 
-      speed: 0.02, 
+      amplitude: size * 0.05,
+      frequency: 4 / size,
+      speed: 0.02,
     }),
     [size],
   );

@@ -1,3 +1,3 @@
-export * from './Auth/AuthLayout';
-export * from './Layout';
-export * from './WaveLoader/WaveLoader'
+export * from "./layouts/CenterCardLayout";
+export * from "./layouts/MainLayout";
+export * from "./loader/WaveLoader";

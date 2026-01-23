@@ -1,12 +1,13 @@
 import React, { useState, useRef } from "react";
-import { Layout } from "@shared/ui/Layout";
+import { MainLayout } from "@shared/ui";
 import { Sidebar } from "@widgets/Sidebar";
 import { UserMenu } from "@widgets/UserMenu";
 import { Button } from "primereact/button";
 import { TranscriptionSettings } from "@features/settings/ui/TranscriptionSettings";
 import { ThemeSettings } from "@features/settings/ui/ThemeSettings";
 import { useSettingsStore } from "@entities/settings";
-import { toastService, ToastSeverity } from "@renderer/shared";
+import { toastService } from "@renderer/shared";
+import { ToastSeverity } from "@renderer/shared/config";
 
 export const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useSettingsStore();
@@ -22,7 +23,7 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <Layout sidebar={<Sidebar />} headerRight={<UserMenu />}>
+    <MainLayout sidebar={<Sidebar />} headerRight={<UserMenu />}>
       <div className="max-w-3xl mx-auto py-8">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-8">
           App Settings
@@ -46,6 +47,6 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </MainLayout>
   );
 };

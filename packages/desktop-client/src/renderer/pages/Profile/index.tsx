@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Layout } from "@shared/ui/Layout";
+import { MainLayout } from "@shared/ui";
 import { Sidebar } from "@widgets/Sidebar";
 import { UserMenu } from "@widgets/UserMenu";
 import { Toast } from "primereact/toast";
@@ -18,7 +18,7 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <Layout sidebar={<Sidebar />} headerRight={<UserMenu />}>
+    <MainLayout sidebar={<Sidebar />} headerRight={<UserMenu />}>
       <Toast ref={toast} />
       <div className="max-w-3xl mx-auto py-8">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-8">
@@ -37,6 +37,6 @@ export const ProfilePage: React.FC = () => {
           />
         </div>
       </div>
-    </Layout>
+    </MainLayout>
   );
 };

@@ -4,13 +4,13 @@ import logo from "@renderer/assets/logo/light/logo-wide.svg";
 import logoDark from "@renderer/assets/logo/dark/logo-wide-dark.svg";
 import { ROUTES } from "@renderer/shared/config/routes";
 
-interface LayoutProps {
+interface MainLayoutProps {
   children: React.ReactNode;
   sidebar?: React.ReactNode;
   headerRight?: React.ReactNode;
 }
 
-export const Layout: React.FC<LayoutProps> = ({
+export const MainLayout: React.FC<MainLayoutProps> = ({
   children,
   sidebar,
   headerRight,
