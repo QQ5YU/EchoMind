@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 import type { IpcApi } from "@renderer/shared/types";
+import { logger } from "./logger";
 
 const api: IpcApi = {
   invoke: (channel: string, data?: unknown) =>
@@ -16,7 +17,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld("electron", electronAPI);
     contextBridge.exposeInMainWorld("api", api);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 } else {
   window.electron = electronAPI;

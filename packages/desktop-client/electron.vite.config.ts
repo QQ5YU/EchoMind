@@ -6,8 +6,16 @@ export default defineConfig({
   main: {
     resolve: {
       alias: {
-        "@backend": resolve("../backend/src"),
-        "@echomind/shared": resolve("../shared/src/index.ts"),
+        "@renderer": resolve(__dirname, "src/renderer"),
+        "@app": resolve(__dirname, "src/renderer/app"),
+        "@pages": resolve(__dirname, "src/renderer/pages"),
+        "@features": resolve(__dirname, "src/renderer/features"),
+        "@entities": resolve(__dirname, "src/renderer/entities"),
+        "@widgets": resolve(__dirname, "src/renderer/widgets"),
+        "@shared": resolve(__dirname, "src/renderer/shared"),
+        "@shared-core": resolve(__dirname, "src/shared"),
+        "@backend": resolve(__dirname, "../backend/src"),
+        "@echomind/shared": resolve(__dirname, "../shared/src/index.ts"),
       },
     },
     build: {
@@ -25,6 +33,20 @@ export default defineConfig({
     },
   },
   preload: {
+    resolve: {
+      alias: {
+        "@renderer": resolve(__dirname, "src/renderer"),
+        "@app": resolve(__dirname, "src/renderer/app"),
+        "@pages": resolve(__dirname, "src/renderer/pages"),
+        "@features": resolve(__dirname, "src/renderer/features"),
+        "@entities": resolve(__dirname, "src/renderer/entities"),
+        "@widgets": resolve(__dirname, "src/renderer/widgets"),
+        "@shared": resolve(__dirname, "src/renderer/shared"),
+        "@shared-core": resolve(__dirname, "src/shared"),
+        "@backend": resolve(__dirname, "../backend/src"),
+        "@echomind/shared": resolve(__dirname, "../shared/src/index.ts"),
+      },
+    },
     build: {
       externalizeDeps: {},
     },
@@ -38,13 +60,15 @@ export default defineConfig({
     },
     resolve: {
       alias: {
-        "@renderer": resolve("src/renderer"),
-        "@app": resolve("src/renderer/app"),
-        "@pages": resolve("src/renderer/pages"),
-        "@widgets": resolve("src/renderer/widgets"),
-        "@features": resolve("src/renderer/features"),
-        "@entities": resolve("src/renderer/entities"),
-        "@shared": resolve("src/renderer/shared"),
+        "@renderer": resolve(__dirname, "src/renderer"),
+        "@app": resolve(__dirname, "src/renderer/app"),
+        "@pages": resolve(__dirname, "src/renderer/pages"),
+        "@features": resolve(__dirname, "src/renderer/features"),
+        "@entities": resolve(__dirname, "src/renderer/entities"),
+        "@widgets": resolve(__dirname, "src/renderer/widgets"),
+        "@shared": resolve(__dirname, "src/renderer/shared"),
+        "@shared-core": resolve(__dirname, "src/shared"),
+        "@backend": resolve("../backend/src"),
         "@echomind/shared": resolve("../shared/src/index.ts"),
       },
     },
