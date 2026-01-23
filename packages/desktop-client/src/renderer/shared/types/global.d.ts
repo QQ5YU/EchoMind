@@ -1,4 +1,6 @@
-export type IpcInvoke = <Req = unknown, Res = unknown>(
+import type { ApiRequest, ApiResponse } from "../api/types";
+
+export type IpcInvoke = <Req = unknown, Res = unknown | ApiResponse<any>>(
   channel: string,
   data?: Req,
 ) => Promise<Res>;

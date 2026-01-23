@@ -1,1 +1,2 @@
-export * from './interface';
+export * from "./theme";
+export * from "./global.d";
