@@ -1,6 +1,7 @@
 import { api } from "@shared/api";
 import { FileNode, FolderNode } from "../model/types";
 import { AudioFileDto, FolderDto } from "@echomind/shared";
+import { logger } from "@renderer/shared/utils/logger";
 
 export const fileSystemApi = {
   fetchFiles: async (): Promise<FileNode[]> => {
@@ -63,6 +64,6 @@ export const fileSystemApi = {
 
   deleteFolder: async (id: string): Promise<void> => {
     const res = await api.delete(`/api/folders/${id}`);
-    console.log(res);
+    logger.debug(res);
   },
 };

@@ -1,5 +1,6 @@
 import { userApi } from "../api/userApi";
 import { useState, useEffect } from "react";
+import { logger } from "@renderer/shared/utils/logger";
 
 export const useAvatarImage = (avatarPath?: string | null) => {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
@@ -22,7 +23,7 @@ export const useAvatarImage = (avatarPath?: string | null) => {
         }
       })
       .catch((error) => {
-        console.error("Failed to load avatar:", error);
+        logger.error("Failed to load avatar:", error);
       });
 
     return () => {
