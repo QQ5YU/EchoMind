@@ -21,7 +21,8 @@ export function setupApiHandlers(nestApp: INestApplicationContext) {
       const result = await dispatcher.dispatch(config);
       return { data: result, status: 200 };
     } catch (error: unknown) {
-      const err = error as Error | { stack?: string };
+      const err = error instanceof Error ? error : new Error(String(error));
+
       const { status, body } = exceptionAdapter.toApiResponse(err, {
         path: (config && config.url) || "ipc",
         method: (config && config.method) || "IPC",
@@ -30,7 +31,7 @@ export function setupApiHandlers(nestApp: INestApplicationContext) {
       loggerService.log(status, {
         method: (config && config.method) || "IPC",
         path: (config && config.url) || "ipc",
-        message: body?.message || err?.message || String(err),
+        message: body?.message || err.message,
         stack: err.stack,
       });
 

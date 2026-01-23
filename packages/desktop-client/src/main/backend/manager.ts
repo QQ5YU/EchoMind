@@ -1,7 +1,8 @@
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { INestApplicationContext } from '@nestjs/common';
-import { ElectronAppModule } from '@backend/electron-app.module';
+import "reflect-metadata";
+import { NestFactory } from "@nestjs/core";
+import { INestApplicationContext } from "@nestjs/common";
+import { ElectronAppModule } from "@backend/electron-app.module";
+import { logger } from "../logger";
 
 /**
  * Manages the lifecycle of the NestJS embedded backend (Singleton)
@@ -23,18 +24,21 @@ export class BackendManager {
     if (this.context) return this.context;
 
     try {
-      this.context = await NestFactory.createApplicationContext(ElectronAppModule);
-      console.log('[Backend] NestJS Standalone context initialized.');
+      this.context =
+        await NestFactory.createApplicationContext(ElectronAppModule);
+      logger.info("NestJS Standalone context initialized.");
       return this.context;
     } catch (error) {
-      console.error('[Backend] Failed to initialize NestJS context:', error);
+      logger.error("Failed to initialize NestJS context:", error);
       throw error;
     }
   }
 
   public getContext(): INestApplicationContext {
     if (!this.context) {
-      throw new Error('BackendManager is not initialized. Call initialize() first.');
+      throw new Error(
+        "BackendManager is not initialized. Call initialize() first.",
+      );
     }
     return this.context;
   }

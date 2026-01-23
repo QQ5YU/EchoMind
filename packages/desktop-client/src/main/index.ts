@@ -4,6 +4,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import { BackendManager } from "./backend/manager";
 import { setupApiHandlers } from "./ipc/handler";
+import { logger } from "./logger";
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -26,19 +27,20 @@ function createWindow(): void {
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     const url = details.url;
-    console.log(`[Main] Window open request: ${url}`);
-    
-    // Only allow external http/https links to open in the system browser
+    logger.debug(`Window open request: ${url}`);
+
     if (url.startsWith("http:") || url.startsWith("https:")) {
-      // If it's the development server, don't open it externally
-      if (process.env["ELECTRON_RENDERER_URL"] && url.startsWith(process.env["ELECTRON_RENDERER_URL"])) {
+      if (
+        process.env["ELECTRON_RENDERER_URL"] &&
+        url.startsWith(process.env["ELECTRON_RENDERER_URL"])
+      ) {
         return { action: "allow" };
       }
-      
-      console.log(`[Main] Opening external link: ${url}`);
+
+      logger.debug(`Opening external link: ${url}`);
       shell.openExternal(url);
     }
-    
+
     return { action: "deny" };
   });
 
@@ -61,7 +63,7 @@ app.whenReady().then(async () => {
     const context = await backend.initialize();
     setupApiHandlers(context);
   } catch (error) {
-    console.error("Failed to start EchoMind Backend:", error);
+    logger.error("Failed to start EchoMind Backend:", error);
   }
 
   if (BrowserWindow.getAllWindows().length === 0) {
