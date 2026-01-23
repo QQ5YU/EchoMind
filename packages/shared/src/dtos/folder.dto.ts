@@ -1,6 +1,8 @@
 export {
   FolderSchema,
-  FolderDto,
   FolderDeleteResponseSchema,
+} from "../schemas/folder.schema";
+export type {
+  FolderDto,
   FolderDeleteResponseDto,
 } from "../schemas/folder.schema";

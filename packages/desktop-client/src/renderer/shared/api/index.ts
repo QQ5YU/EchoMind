@@ -1,4 +1,4 @@
-export * from "./client";
 export * from "./adapters";
 export * from "./types";
-export * from "./Instance";
+export * from "./instance";
+export { getErrorMessage } from "./lib/error.utils";
