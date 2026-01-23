@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { FileNode, FolderNode } from "./types";
 import { fileSystemApi } from "../api/fileSystemApi";
-import { toastService } from "@shared/services";
-import { ToastSeverity } from "@renderer/shared/enum/enum";
-import { handleApiError } from "@renderer/shared/api/utils";
+import { toastService } from "@shared/utils";
+import { ToastSeverity } from "@renderer/shared/config";
+import { getErrorMessage } from "@renderer/shared";
 
 interface FileSystemState {
   folders: FolderNode[];
@@ -32,7 +32,7 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
       ]);
       set({ files, folders, isLoading: false });
     } catch (err) {
-      const message = handleApiError(err, "Failed to load data");
+      const message = getErrorMessage(err, "Failed to load data");
       set({ isLoading: false, error: message });
     }
   },
@@ -48,7 +48,7 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         `Folder "${name}" created successfully`,
       );
     } catch (err) {
-      handleApiError(err, "Failed to create folder");
+      getErrorMessage(err, "Failed to create folder");
     }
   },
 
@@ -63,7 +63,7 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         `File "${file.name}" uploaded successfully`,
       );
     } catch (err) {
-      handleApiError(err, "Failed to upload file");
+      getErrorMessage(err, "Failed to upload file");
     }
   },
 
@@ -84,7 +84,7 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         `Folder "${folderName}" deleted successfully`,
       );
     } catch (err) {
-      handleApiError(err, "Failed to delete folder");
+      getErrorMessage(err, "Failed to delete folder");
     }
   },
 
@@ -102,7 +102,7 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         `File "${fileName}" deleted successfully`,
       );
     } catch (err) {
-      handleApiError(err, "Failed to delete file");
+      getErrorMessage(err, "Failed to delete file");
     }
   },
 }));

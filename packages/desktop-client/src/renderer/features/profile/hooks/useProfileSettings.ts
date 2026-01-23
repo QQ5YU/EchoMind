@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react";
 import { useAuthStore } from "@entities/user/model/store";
 import { userApi } from "@entities/user/api/userApi";
-import { handleApiError } from "@renderer/shared/api/utils";
-import { toastService } from "@shared/services";
-import { ToastSeverity } from "@renderer/shared/enum/enum";
+import { toastService } from "@shared/utils";
 import { AxiosProgressEvent } from "axios";
+import { ToastSeverity } from "@renderer/shared/config";
+import { getErrorMessage } from "@renderer/shared";
 
 export const useProfileSettings = () => {
   const { user, token, setAuth, updateUser } = useAuthStore();
@@ -27,7 +27,7 @@ export const useProfileSettings = () => {
         );
         return true;
       } catch (err) {
-        handleApiError(err, "Failed to update profile");
+        getErrorMessage(err, "Failed to update profile");
         return false;
       } finally {
         setIsUpdating(false);
@@ -64,7 +64,7 @@ export const useProfileSettings = () => {
 
         toastService.show(ToastSeverity.SUCCESS, "Avatar updated successfully");
       } catch (err) {
-        handleApiError(err, "Failed to upload avatar");
+        getErrorMessage(err, "Failed to upload avatar");
       } finally {
         setIsUpdating(false);
       }
