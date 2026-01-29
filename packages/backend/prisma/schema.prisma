@@ -79,6 +79,7 @@ model Folder {
   user       User        @relation(fields: [userId], references: [id])
 
   @@map("folders")
+  @@unique([userId, name, parentId], name: "folder_unique_name_per_parent")
 }
 
 model UserSetting {

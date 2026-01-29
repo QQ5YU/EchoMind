@@ -34,6 +34,22 @@ export class FolderPrismaRepository implements FolderRepository {
     }
   }
 
+  async findOne(
+    userId: string,
+    name: string,
+    parentId?: string,
+  ): Promise<Folder | null> {
+    const folder = this.prisma.folder.findFirst({
+      where: {
+        userId,
+        name,
+        parentId: parentId || null,
+      },
+    });
+
+    return folder;
+  }
+
   async findAllByUserId(userId: string): Promise<Folder[]> {
     const folders = await this.prisma.folder.findMany({
       where: { userId },
