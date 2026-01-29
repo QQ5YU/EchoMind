@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { FolderRepository } from '../domain/folder.repository';
 import { Folder } from '../domain/folder.entity';
 import { FolderDeleteResponseDto, FolderDto } from '../dto/folders.dto';
+import { DuplicateEntityException } from 'src/core/error-handling';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class FoldersService {
@@ -12,12 +14,33 @@ export class FoldersService {
     name: string,
     parentId?: string,
   ): Promise<FolderDto> {
-    const folder = await this.folderRepository.create({
+    const existingFolder = await this.folderRepository.findOne(
       userId,
       name,
-      parentId: parentId || null,
-    });
-    return this.toFolderDto(folder);
+      parentId,
+    );
+
+    if (existingFolder) {
+      throw new DuplicateEntityException('folder', 'name');
+    }
+
+    try {
+      const folder = await this.folderRepository.create({
+        userId,
+        name,
+        parentId: parentId || null,
+      });
+
+      return this.toFolderDto(folder);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new DuplicateEntityException('folder', 'name');
+      }
+      throw error;
+    }
   }
 
   async findAll(userId: string): Promise<FolderDto[]> {
