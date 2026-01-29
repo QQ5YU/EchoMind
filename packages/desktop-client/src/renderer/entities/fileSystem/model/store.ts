@@ -48,7 +48,8 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
         `Folder "${name}" created successfully`,
       );
     } catch (err) {
-      getErrorMessage(err, "Failed to create folder");
+      const errorMsg = getErrorMessage(err, "Failed to create folder");
+      toastService.show(ToastSeverity.ERROR, errorMsg);
     }
   },
 
