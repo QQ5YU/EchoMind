@@ -23,6 +23,7 @@ export class AudioService {
   async uploadFile(
     userId: string,
     file: Express.Multer.File,
+    folderId: string | null,
   ): Promise<AudioFileDto> {
     const storageDir = path.resolve(__dirname, '../../../storage/audio');
     if (!fs.existsSync(storageDir)) {
@@ -41,12 +42,7 @@ export class AudioService {
         fileName: file.originalname,
         filePath,
         status: DomainAudioStatus.PENDING,
-        folderId: null,
-      });
-
-      await this.audioQueue.add('transcribe', {
-        audioFileId: audioFile.id,
-        filePath: audioFile.filePath,
+        folderId,
       });
 
       return this.toAudioFileDto(audioFile);
@@ -86,7 +82,7 @@ export class AudioService {
 
   async findOne(id: string, userId: string): Promise<AudioFileDto> {
     const file = await this.audioRepository.findById(id);
-    
+
     if (!file) throw new EntityNotFoundException('AudioFile', id);
 
     if (file.userId !== userId)
