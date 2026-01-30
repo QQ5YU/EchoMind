@@ -39,9 +39,16 @@ export const fileSystemApi = {
     };
   },
 
-  uploadFile: async (file: File): Promise<FileNode> => {
+  uploadFile: async (
+    file: File,
+    folderId?: string | null,
+  ): Promise<FileNode> => {
     const formData = new FormData();
     formData.append("file", file);
+
+    // Note: `folderId` parameter added here as an API change.
+    // Implementation to append `folderId` to FormData will be
+    // introduced in a follow-up commit.
 
     const { data } = await api.post<AudioFileDto>("/api/audio", formData, {
       headers: {
