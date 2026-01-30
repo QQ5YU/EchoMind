@@ -1,176 +1,60 @@
-# ESLint Boundaries - 架構依賴管理
+# Frontend Architecture: EchoMind Desktop Client
 
-本專案使用 `eslint-plugin-boundaries` 來強制執行 Feature-Sliced Design (FSD) 架構的依賴規則。
+This document outlines the architecture of the EchoMind desktop client, which is built using Electron and React. The architecture is designed to be scalable, maintainable, and robust, following the principles of **Feature-Sliced Design (FSD)**.
 
-## 架構層級
+## Core Technologies
 
-### 依賴規則（從上到下）
+-   **Framework**: [Electron](https://www.electronjs.org/) (for the desktop application shell) and [React](https://reactjs.org/) (for the user interface).
+-   **State Management**:
+    -   [Zustand](https://github.com/pmndrs/zustand) for global client-side state.
+    -   [TanStack Query (React Query)](https://tanstack.com/query/latest) for managing server state, including caching, refetching, and optimistic updates.
+-   **UI Components**:
+    -   [PrimeReact](https://primereact.org/) as the primary component library.
+    -   [Tailwind CSS](https://tailwindcss.com/) for styling and customization.
+-   **Testing**:
+    -   [Vitest](https://vitest.dev/) for unit and integration testing.
+    -   [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) for testing React components.
+    -   [Playwright](https://playwright.dev/) for end-to-end testing.
 
-```
-app         → 可以使用所有層級
-  ↓
-pages       → 可以使用 widgets, features, entities, shared
-  ↓
-widgets     → 可以使用 features, entities, shared
-  ↓
-features    → 可以使用 entities, shared
-  ↓
-entities    → 可以使用 entities (互相), shared
-  ↓
-shared      → 只能內部依賴
-```
+## Architectural Overview
 
-## 核心原則
+The frontend is an Electron application with two main processes:
 
-1. **單向依賴流**：只能向下依賴，不能向上依賴
-2. **同層隔離**：同層級的不同 slice 應該互相獨立（除了 entities）
-3. **Public API**：通過 index 文件暴露公開接口
+1.  **Main Process**: This process runs in a Node.js environment and is responsible for creating and managing application windows (`BrowserWindow`), handling native OS events, and managing the application lifecycle. It's a thin wrapper that hosts the web-based UI.
+2.  **Renderer Process**: This is the web page that runs inside a `BrowserWindow`. It is a standard React single-page application (SPA) responsible for rendering the UI.
 
-## 使用指令
+The communication between the frontend and the backend is handled through a REST API, with the frontend making HTTP requests to the NestJS server.
 
-```bash
-# 檢查架構違規
-pnpm lint
+## Feature-Sliced Design (FSD)
 
-# 自動修復（限基本問題）
-pnpm lint:fix
-```
+The renderer process is structured using the Feature-Sliced Design (FSD) methodology. This is a hierarchical and layered architecture that organizes code by business domain and scope of influence. The main layers are:
 
-## 常見錯誤與解決方案
+-   `app/`: The root layer, responsible for app-wide setup, including routing, global styles, and providers (e.g., TanStack Query provider, theme provider).
 
-### ❌ 錯誤：`boundaries/element-types`
+-   `pages/`: This layer is responsible for composing features and widgets into complete pages. For example, a `DashboardPage` would compose the `AudioUpload` feature, the `FilesList` widget, and the `Search` feature.
 
-```typescript
-// ❌ widgets 不能使用 pages
-// src/renderer/widgets/MyWidget/index.tsx
-import { SomePage } from "@/pages/SomePage";
+-   `features/`: This layer contains the application's business logic features. Each feature is self-contained and encapsulates a specific piece of functionality. Examples include:
+    -   `feature-audio-upload`: The logic for uploading audio files.
+    -   `feature-search`: the UI and logic for the search bar.
 
-// ✅ widgets 只能使用 features, entities, shared
-import { SomeFeature } from "@/features/SomeFeature";
-```
+-   `entities/`: This layer contains business entities and the logic for working with them. For example:
+    -   `entity-user`: Components and hooks related to the User entity.
+    -   `entity-audio-file`: Components to display an audio file, and hooks to fetch its data.
 
-### ❌ 錯誤：`boundaries/no-unknown`
+-   `shared/`: This layer contains reusable code that is not tied to any specific business logic. This includes:
+    -   UI components (buttons, inputs, etc.).
+    -   Utility functions.
+    -   Configuration settings.
+    -   Hooks that are not tied to a specific entity.
 
-```typescript
-// ❌ 從未定義的路徑導入
-import { something } from "../../../some-random-folder";
+This layered structure ensures a clear separation of concerns and a unidirectional data flow, making the application easier to understand, maintain, and scale.
 
-// ✅ 使用定義好的層級
-import { something } from "@/shared/lib/something";
-```
+## Communication with Backend
 
-### ❌ 錯誤：`boundaries/no-unknown-files`
+To accommodate both a fast web-based development workflow and a self-contained Electron application, the frontend uses a **conditional communication strategy**.
 
-檔案不在任何已定義的層級內。確保檔案在以下目錄之一：
+-   **Mechanism**: All API interactions are handled by a central **Axios** instance. This instance is configured with a conditional adapter.
+-   **In a Web Browser**: When the app is run in a standard web browser for development, the Axios instance uses its default HTTP adapter to make direct network requests to the running `backend` server.
+-   **In Electron**: When the app is packaged in Electron, a `preload` script securely exposes an IPC interface to the renderer process under the `window.api` object. The Axios instance detects this interface and automatically switches to a custom **`ipcAdapter`**. This adapter intercepts all outgoing requests and routes them over an IPC channel to the Electron Main Process, which then proxies the request to the appropriate background service (`backend` or `ai-service`).
 
-- `src/renderer/app/`
-- `src/renderer/pages/`
-- `src/renderer/widgets/`
-- `src/renderer/features/`
-- `src/renderer/entities/`
-- `src/renderer/shared/`
-
-## 層級說明
-
-### 📱 App Layer
-
-應用的入口點和根配置
-
-- 路由配置
-- 全域 Provider
-- 主題和樣式
-
-### 📄 Pages Layer
-
-完整的頁面組件
-
-- 組合 widgets 和 features
-- 處理路由
-- 頁面級別的資料獲取
-
-### 🧩 Widgets Layer
-
-獨立的 UI 區塊
-
-- 側邊欄、導航欄
-- 複雜的複合組件
-- 包含業務邏輯的 UI 組件
-
-### ⚙️ Features Layer
-
-業務功能和用戶操作
-
-- 使用者互動（登入、搜尋等）
-- 業務邏輯實現
-- 狀態管理
-
-### 📦 Entities Layer
-
-業務實體
-
-- API 客戶端
-- 資料模型
-- 實體級別的狀態管理
-
-### 🔧 Shared Layer
-
-可重用的基礎設施
-
-- UI 組件庫
-- 工具函數
-- API 配置
-- 型別定義
-
-## 範例
-
-### ✅ 正確的依賴
-
-```typescript
-// pages/Library/index.tsx
-import { Sidebar } from "@/widgets/Sidebar"; // ✅ pages → widgets
-import { useFiles } from "@/entities/fileSystem"; // ✅ pages → entities
-import { Button } from "@/shared/ui/Button"; // ✅ pages → shared
-
-// widgets/Sidebar/index.tsx
-import { useAuth } from "@/features/auth"; // ✅ widgets → features
-import { useUser } from "@/entities/user"; // ✅ widgets → entities
-
-// features/auth/model.ts
-import { userApi } from "@/entities/user/api"; // ✅ features → entities
-
-// entities/user/api.ts
-import { httpClient } from "@/shared/api/http"; // ✅ entities → shared
-```
-
-### ❌ 錯誤的依賴
-
-```typescript
-// ❌ shared 不能依賴 entities
-// shared/ui/UserAvatar.tsx
-import { useUser } from "@/entities/user";
-
-// ❌ entities 不能依賴 features
-// entities/user/model.ts
-import { authFeature } from "@/features/auth";
-
-// ❌ widgets 不能依賴 pages
-// widgets/Header/index.tsx
-import { LibraryPage } from "@/pages/Library";
-```
-
-## 暫時繞過規則（不推薦）
-
-如果確實需要暫時繞過某個規則（僅在特殊情況下）：
-
-```typescript
-// eslint-disable-next-line boundaries/element-types
-import { Something } from "@/wrong-layer";
-```
-
-**注意**：應該盡量避免這樣做，並在程式碼審查時特別注意這些繞過。
-
-## 配置文件
-
-ESLint 配置位於：`packages/desktop-client/eslint.config.js`
-
-如需調整規則，請修改該文件並與團隊討論。
+This adapter pattern allows the application's data-fetching logic (e.g., TanStack Query hooks) to be written once, without needing to know whether it's running in a browser or in Electron.
