@@ -1,7 +1,7 @@
-# Specification Quality Checklist: MVP Audio Search Feature
+# Specification Quality Checklist: MVP Audio Search
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2025-12-05
+**Created**: 2026-01-30
 **Feature**: [Link to spec.md]
 
 ## Content Quality
@@ -31,4 +31,5 @@
 
 ## Notes
 
-- Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
+- The spec has been updated to match the current backend implementation. It is now ready for planning or further clarification.
+- **Update (2026-01-30):** User Story 5 (Audio Transcription) was updated to reflect a change from a queue-based worker to a long-running sidecar process for the AI service, as requested.

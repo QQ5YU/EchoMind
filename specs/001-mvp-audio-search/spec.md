@@ -84,7 +84,7 @@ sequenceDiagram
 
 ### User Story 3 - File Upload (Priority: P2)
 
-As a logged-in user, I want to upload one or more audio files so they can be processed by the system.
+As a logged-in user, I want to upload an audio file, optionally assigning it to a folder, so it can be processed by the system.
 
 **Why this priority**: This is the foundational content creation step. Without uploaded audio, no other feature has value.
 
@@ -95,19 +95,20 @@ sequenceDiagram
     participant Backend as Backend Server
     participant DB as Database
 
-    User->>Client: Selects and uploads multiple audio files
-    Client->>Backend: POST /audio/bulk (multipart/form-data, with Auth token)
-    Backend->>DB: Create AudioFile records linked to User ID with "pending" status
-    DB-->>Backend: Returns created AudioFile records
-    Backend-->>Client: 201 Created (AudioFile records)
+    User->>Client: Selects and uploads an audio file (optionally with a folder)
+    Client->>Backend: POST /audio (multipart/form-data, with Auth token and optional folderId)
+    Backend->>DB: Create AudioFile record linked to User ID and optional Folder ID, with "pending" status
+    DB-->>Backend: Returns created AudioFile record
+    Backend-->>Client: 201 Created (AudioFile record)
 ```
 
-**Independent Test**: Can be tested by uploading multiple audio files and verifying they are saved by the system.
+**Independent Test**: Can be tested by uploading an audio file and verifying it is saved by the system.
 
 **Acceptance Scenarios**:
 
-1.  **Given** I am logged in, **When** I select and upload one or more valid audio files, **Then** the files are successfully uploaded and are pending transcription.
-2.  **Given** I upload a mix of supported and unsupported file types, **When** the upload is attempted, **Then** the supported files are uploaded and I see an error message for the unsupported files.
+1.  **Given** I am logged in, **When** I select and upload a valid audio file, **Then** the file is successfully uploaded and is pending transcription.
+2.  **Given** I am logged in and have a folder, **When** I select and upload a valid audio file and assign it to the folder, **Then** the file is successfully uploaded into that folder.
+3.  **Given** I attempt to upload an unsupported file type, **When** the upload is attempted, **Then** I see an error message.
 
 ---
 
@@ -124,85 +125,102 @@ sequenceDiagram
     participant Backend as Backend Server
     
     User->>Client: Views file list
-    Client->>Backend: GET /files
-    Backend-->>Client: Returns list of files
+    Client->>Backend: GET /audio
+    Backend-->>Client: Returns list of audio files
     
     User->>Client: Creates a new folder "Project X"
-    Client->>Backend: POST /folders
+    Client->>Backend: POST /folders (body: { name: "Project X" })
     
-    User->>Client: Moves a file into "Project X"
-    Client->>Backend: PUT /files/{fileId}/folder
+    User->>Client: Deletes a folder
+    Client->>Backend: DELETE /folders/{folderId}
+
+    User->>Client: Deletes a file
+    Client->>Backend: DELETE /audio/{fileId}
 ```
 
-**Independent Test**: A user can see their uploaded files. They can create a folder, add a file to it, and see the file inside that folder.
+**Independent Test**: A user can see their uploaded files. They can create a folder. They can upload a file into that folder. They can delete a file and a folder.
 
 **Acceptance Scenarios**:
 
 1.  **Given** I have uploaded files, **When** I view my file list, **Then** I see a list of my files with their status (e.g., pending, processing, processed).
 2.  **Given** I am viewing my file list, **When** I create a new folder, **Then** the folder appears in my file list.
-3.  **Given** I have a file and a folder, **When** I move the file into the folder, **Then** the file is no longer in the main list and appears inside the folder.
+3.  **Given** I have a file, **When** I delete the file, **Then** it is removed from my file list.
+4.  **Given** I have a folder, **When** I delete the folder, **Then** it is removed from my file list.
+*Note: Files are assigned to folders upon upload. There is no functionality to move a file between folders after it has been uploaded.*
 
 ---
+
+
 
 ### User Story 5 - Audio Transcription (Priority: P2)
 
+
+
 As a user, I want my uploaded audio files to be automatically transcribed so I can search and review their content.
+
+
 
 **Why this priority**: Transcription is the core process that enables search and playback features.
 
-```mermaid
-sequenceDiagram
-    participant Backend as Backend Server
-    participant Queue as Redis Job Queue
-    participant Worker as AI Worker
-    participant DB as Database
-    participant AIScript as Python AI Script
 
-    Backend->>Queue: Enqueue transcription jobs for new AudioFiles
+
+**Architecture**: The AI transcription service runs as a long-running "sidecar" process, managed by the main backend application. This avoids per-job startup overhead and simplifies deployment. The backend communicates with the AI service over a standard inter-process communication (IPC) channel.
+
+
+
+```mermaid
+
+sequenceDiagram
+
+    participant Backend as Backend Server
+
+    participant AIService as AI Service (Sidecar Process)
+
+    participant DB as Database
+
+
+
+    note over Backend, AIService: In production, the Electron main process starts both the Backend and the AI Service. The Backend communicates with the AI Service via IPC.
+
+
+
+    Backend->>DB: Update audio status to "processing"
+
+    note right of Backend: Backend notifies Client via WebSocket/SSE
+
     
-    Worker->>Queue: Dequeue job
-    Worker->>DB: Update audio status to "processing"
-    note right of Worker: Backend notifies Client via WebSocket/SSE
-    Worker->>AIScript: spawn('process_audio.py', ...args)
-    note right of AIScript: Using faster-whisper (ASR) and sentence-transformers (Vectorization)
-    AIScript-->>Worker: Returns JSON transcript
-    Worker->>DB: Save transcript and update status to "processed"
-    note right of Worker: Backend notifies Client via WebSocket/SSE
+
+    Backend->>AIService: Send transcription command (e.g., via IPC) with audio file path
+
+    note right of AIService: Using faster-whisper (ASR) and sentence-transformers (Vectorization)
+
+    
+
+    AIService-->>Backend: Return JSON transcript (e.g., via IPC)
+
+    
+
+    Backend->>DB: Save transcript and update audio status to "processed"
+
+    note right of Backend: Backend notifies Client via WebSocket/SSE
+
 ```
+
+
 
 **Independent Test**: Can be tested by observing an audio file in the "pending" state and verifying it moves to "processed" with a complete transcript.
 
+
+
 **Acceptance Scenarios**:
+
+
 
 1.  **Given** a file has a "pending" status, **When** the transcription process is complete, **Then** the file status updates to "processed" and the transcript is available.
+
 2.  **Given** a transcription job fails, **Then** the file status updates to "error".
 
----
 
-### User Story 6 - Export Snippets to Text (Priority: P4)
-
-As a user, I want to select a portion of the transcript/audio and export it as a text file so I can use it in other contexts.
-
-**Why this priority**: Exporting key moments from a recording is a primary use case, allowing users to easily transfer information.
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Client as Web Client (Frontend)
-
-    User->>Client: Selects a transcript segment
-    User->>Client: Clicks "Export"
-    Client->>User: Downloads a text file containing the selected transcript
-```
-
-**Independent Test**: A user can select a part of a transcript and successfully download it as a text file.
-
-**Acceptance Scenarios**:
-
-1.  **Given** I am viewing a transcript, **When** I select a segment of text, **Then** an "Export" option becomes available.
-2.  **Given** I have selected a segment, **When** I click "Export", **Then** a text file containing the selected transcript is downloaded to my local machine.
-
-*Note: In a future phase, consideration may be given to adding functionality for generating public, shareable links.*
 
 ---
 
@@ -350,23 +368,29 @@ sequenceDiagram
 -   **FR-001**: The system MUST allow a new user to register with an email and password.
 -   **FR-002**: The system MUST allow a registered user to log in and log out.
 -   **FR-003**: The system MUST secure endpoints, ensuring a user can only access their own data.
--   **FR-004**: The system MUST allow a logged-in user to upload one or more audio files at a time.
--   **FR-005**: The system MUST allow the user to view and manage their uploaded audio files, including organization with folders.
--   **FR-006**: The system MUST automatically generate a time-stamped text transcript from the uploaded audio file.
--   **FR-007**: The system MUST generate vector representations of the transcript content for semantic search.
--   **FR-008**: The system MUST provide a search interface for users to perform semantic search on their own audio files.
--   **FR-009**: The system MUST return a list of transcript segments from the user's files that are semantically relevant to the query.
--   **FR-010**: The system MUST display the full transcript for a selected audio file.
--   **FR-011**: The system MUST allow the audio to be played, paused, and have its playback speed adjusted.
--   **FR-012**: The system MUST jump the audio playback to the correct time when a user clicks on a segment of the transcript.
--   **FR-013**: The system MUST allow the user to configure the default language for transcription within the system settings.
--   **FR-014**: The system MUST use `faster-whisper` for ASR and `sentence-transformers` for vectorization.
+-   **FR-004**: The system MUST allow a logged-in user to upload one audio file at a time, optionally assigning it to a folder.
+-   **FR-005**: The system MUST allow the user to view their uploaded audio files and folders.
+-   **FR-006**: The system MUST allow a user to create and delete folders.
+-   **FR-007**: The system MUST allow a user to delete their audio files.
+-   **FR-008**: The system MUST automatically generate a time-stamped text transcript from the uploaded audio file.
+-   **FR-009**: The system MUST generate vector representations of the transcript content for semantic search.
+-   **FR-010**: The system MUST provide a search interface for users to perform semantic search on their own audio files.
+-   **FR-011**: The system MUST return a list of transcript segments from the user's files that are semantically relevant to the query.
+-   **FR-012**: The system MUST display the full transcript for a selected audio file.
+-   **FR-013**: The system MUST allow the audio to be played, paused, and have its playback speed adjusted.
+-   **FR-014**: The system MUST jump the audio playback to the correct time when a user clicks on a segment of the transcript.
+-   **FR-015**: The system MUST allow the user to configure the default language for transcription within the system settings.
+-   **FR-016**: The system MUST use `faster-whisper` for ASR and `sentence-transformers` for vectorization.
 
 ### Key Entities
 
 ```mermaid
 erDiagram
+    User ||--|{ Folder : "owns"
     User ||--|{ AudioFile : "owns"
+    Folder ||--o{ AudioFile : "contains"
+    Folder ||--o{ Folder : "contains"
+
     AudioFile ||--o{ Transcript : "has one"
     Transcript ||--|{ TranscriptSegment : "has many"
 
@@ -374,13 +398,21 @@ erDiagram
         string id PK
         string email
         string password_hash
-        string session_token
+        datetime created_at
+    }
+
+    Folder {
+        string id PK
+        string user_id FK
+        string parent_id FK
+        string name
         datetime created_at
     }
 
     AudioFile {
         string id PK
         string user_id FK
+        string folder_id FK
         string file_name
         string file_path
         string status
@@ -404,6 +436,7 @@ erDiagram
 ```
 
 -   **User**: Represents an application user with credentials.
+-   **Folder**: Represents a folder to organize audio files, can be nested.
 -   **AudioFile**: Represents an audio recording uploaded by a **User**. Key attributes include a unique identifier, file name, processing status, and a link to its transcript.
 -   **Transcript**: Represents the full text content of an `AudioFile`. It is composed of multiple segments.
 -   **TranscriptSegment**: Represents a small, contiguous portion of a transcript (e.g., a sentence) with associated start and end times. It also has a vector representation for search purposes.
