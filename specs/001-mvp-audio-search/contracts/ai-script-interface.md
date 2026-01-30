@@ -1,65 +1,124 @@
-# AI Script Interface Contract
+# AI Service IPC Contract
 
-This document defines the command-line interface and I/O contract for the external Python script responsible for AI processing (transcription and vectorization). This script is treated as a black box; the Node.js application is only concerned with this interface.
+This document defines the Inter-Process Communication (IPC) contract between the NestJS backend and the AI Service sidecar process. The backend communicates with the AI service by writing newline-delimited JSON messages to its `stdin` and reading newline-delimited JSON messages from its `stdout`.
 
-As per the user request, the implementation of this AI script is **out of scope** for the current plan.
+## Communication Protocol
 
-## Invocation
+-   **Transport**: `stdin` for requests (Backend -> AI Service), `stdout` for responses (AI Service -> Backend).
+-   **Format**: All messages are single-line JSON strings, terminated by a newline character (`\n`).
+-   **Correlation**: Each request message MUST include a unique `request_id`. The corresponding response message MUST carry the same `request_id` to allow the backend to correlate responses with requests.
 
-The script will be invoked by the Electron Main process using `child_process.spawn`.
+---
 
--   **Command**: `python`
--   **Script Path**: `[path-to-python-script]/process_audio.py`
+## Message Types
 
-## Command-Line Arguments
+### 1. Transcribe Request
 
-The script accepts the following command-line arguments:
-
--   `--audio-file-path` (required): The absolute path to the audio file that needs to be processed.
--   `--output-dir` (required): The absolute path to the directory where output files (transcript, vectors) should be stored.
--   `--language` (optional): The language of the audio file (e.g., "en", "es"). If not provided, the script should attempt to auto-detect the language.
-
-### Example Invocation
-
-```bash
-python process_audio.py \
-  --audio-file-path "/workspaces/EchoMind/data/audio/some-file.mp3" \
-  --output-dir "/workspaces/EchoMind/data/processed/some-file-id" \
-  --language "en"
-```
-
-## Standard Output (stdout)
-
-The script MUST output a single JSON object to `stdout` upon successful completion. This JSON object represents the structured transcript data.
-
--   **Success Output**: A JSON object with the following structure:
+-   **Description**: Sent by the backend to request the transcription and embedding of an audio file.
+-   **Direction**: Backend -> AI Service (`stdin`)
+-   **JSON Message**:
     ```json
     {
-      "language": "en",
-      "segments": [
-        {
-          "id": "segment-uuid-1",
-          "text": "This is the first sentence.",
-          "start_time": 0,
-          "end_time": 3
-        },
-        {
-          "id": "segment-uuid-2",
-          "text": "This is the second sentence.",
-          "start_time": 4,
-          "end_time": 7
-        }
-      ]
+      "type": "transcribe",
+      "request_id": "unique-uuid-for-this-request",
+      "payload": {
+        "audio_file_path": "/path/to/audio.mp3",
+        "audio_file_id": "uuid-of-audio-file",
+        "language": "en"
+      }
     }
     ```
+    -   `type` (string, required): Must be `"transcribe"`.
+    -   `request_id` (string, required): A unique identifier for the request.
+    -   `payload.audio_file_path` (string, required): Absolute path to the audio file.
+    -   `payload.audio_file_id` (string, required): The ID of the `AudioFile` record.
+    -   `payload.language` (string, optional): The language of the audio file.
 
-## Standard Error (stderr)
+### 2. Transcribe Response
 
--   Any errors that occur during processing MUST be written to `stderr`.
--   The Node.js process will listen for any output on `stderr` to mark the processing job as failed.
+-   **Description**: Sent by the AI service after it has finished processing a transcribe request.
+-   **Direction**: AI Service -> Backend (`stdout`)
+-   **JSON Message (Success)**:
+    ```json
+    {
+      "type": "transcribe_response",
+      "request_id": "unique-uuid-for-this-request",
+      "status": "success",
+      "payload": {
+        "transcript_id": "uuid-of-transcript",
+        "message": "Transcription and embedding complete."
+      }
+    }
+    ```
+-   **JSON Message (Error)**:
+    ```json
+    {
+      "type": "transcribe_response",
+      "request_id": "unique-uuid-for-this-request",
+      "status": "error",
+      "payload": {
+        "message": "A description of what went wrong."
+      }
+    }
+    ```
+    -   `type` (string, required): Must be `"transcribe_response"`.
+    -   `request_id` (string, required): The `request_id` from the original request.
+    -   `status` (string, required): `"success"` or `"error"`.
 
-## Generated Artifacts (in `output-dir`)
+---
 
-Upon successful execution, the script is expected to create the following files inside the provided `--output-dir`:
+### 3. Search Request
 
--   `vectors.db`: A file-based vector store (e.g., a FAISS index or LanceDB table) containing the vector embeddings for each segment. The keys/IDs in this store must match the `id` field of the segments in the JSON output.
+-   **Description**: Sent by the backend to perform a semantic search.
+-   **Direction**: Backend -> AI Service (`stdin`)
+-   **JSON Message**:
+    ```json
+    {
+      "type": "search",
+      "request_id": "unique-uuid-for-search-request",
+      "payload": {
+        "query_text": "text to search for",
+        "user_id": "uuid-of-user"
+      }
+    }
+    ```
+    -   `type` (string, required): Must be `"search"`.
+    -   `request_id` (string, required): A unique identifier for the request.
+    -   `payload.query_text` (string, required): The search query.
+    -   `payload.user_id` (string, required): The user ID to scope the search.
+
+### 4. Search Response
+
+-   **Description**: Sent by the AI service with the results of a search request.
+-   **Direction**: AI Service -> Backend (`stdout`)
+-   **JSON Message (Success)**:
+    ```json
+    {
+      "type": "search_response",
+      "request_id": "unique-uuid-for-search-request",
+      "status": "success",
+      "payload": {
+        "segment_ids": ["uuid-1", "uuid-2", ...],
+        "message": "Search complete."
+      }
+    }
+    ```
+-   **JSON Message (Error)**:
+    ```json
+    {
+      "type": "search_response",
+      "request_id": "unique-uuid-for-search-request",
+      "status": "error",
+      "payload": {
+        "message": "A description of what went wrong during search."
+      }
+    }
+    ```
+    -   `type` (string, required): Must be `"search_response"`.
+    -   `request_id` (string, required): The `request_id` from the original request.
+    -   `status` (string, required): `"success"` or `"error"`.
+
+---
+## Error Handling
+
+In addition to the `status: "error"` in response messages, the AI service can write error information to `stderr`. The backend should monitor the `stderr` stream for critical errors that might prevent the AI service from functioning correctly (e.g., model loading failures, unhandled exceptions).
