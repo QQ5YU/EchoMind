@@ -12,7 +12,7 @@ interface FileSystemState {
   error: string | null;
   fetchAll: () => Promise<void>;
   addFolder: (name: string, parentId?: string) => Promise<void>;
-  uploadFile: (file: File) => Promise<void>;
+  uploadFile: (file: File, folderId?: string | null) => Promise<void>;
   deleteFolder: (id: string) => Promise<void>;
   deleteFile: (id: string) => Promise<void>;
 }
@@ -53,9 +53,9 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
     }
   },
 
-  uploadFile: async (file) => {
+  uploadFile: async (file, folderId) => {
     try {
-      const newFile = await fileSystemApi.uploadFile(file);
+      const newFile = await fileSystemApi.uploadFile(file, folderId);
       set((state) => ({
         files: [...state.files, newFile],
       }));
