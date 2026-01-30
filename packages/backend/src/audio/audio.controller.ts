@@ -11,6 +11,7 @@ import {
   MaxFileSizeValidator,
   Res,
   Delete,
+  Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -37,12 +38,18 @@ export class AudioController {
     @Request() req: RequestWithUser,
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new MaxFileSizeValidator({ maxSize: 100 * 1024 * 1024 })],
+        validators: [new MaxFileSizeValidator({ maxSize: 500 * 1024 * 1024 })],
       }),
     )
     file: Express.Multer.File,
+    @Body('folderId') folderId?: string,
   ): Promise<AudioFileDto> {
-    return await this.audioService.uploadFile(req.user.userId, file);
+    const parsedFolderId = folderId && folderId !== '' ? folderId : null;
+    return await this.audioService.uploadFile(
+      req.user.userId,
+      file,
+      parsedFolderId,
+    );
   }
 
   @Delete(':id')
