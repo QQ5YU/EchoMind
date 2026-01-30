@@ -19,7 +19,7 @@ export class AudioPrismaRepository implements AudioRepository {
         userId: audioFile.userId,
         fileName: audioFile.fileName,
         filePath: audioFile.filePath,
-        status: audioFile.status as PrismaAudioStatus,
+        status: audioFile.status.toUpperCase() as PrismaAudioStatus,
         folderId: audioFile.folderId,
       },
     });
