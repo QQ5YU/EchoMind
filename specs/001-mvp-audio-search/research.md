@@ -79,15 +79,13 @@ This document outlines the decisions made to resolve technical ambiguities in th
     -   **Standard NestJS structure**: Can lead to high coupling between domains.
     -   **Integrated Electron Backend**: The original approach, rejected by the user.
 
-## 8. Caching and Job Queueing
+## 8. Caching
 
--   **Decision**: We will use **Redis** for backend caching and to manage a job queue.
--   **Rationale**:
-    -   A Redis-based queue (e.g., Bull) will be used for asynchronous AI job processing.
-    -   Redis will be used for caching to reduce database load.
+-   **Decision**: We will use **Redis** for backend caching if needed.
+-   **Rationale**: Redis can be used for general-purpose caching to reduce database load. Asynchronous AI job processing will be handled via direct Inter-Process Communication (IPC) with the AI sidecar service, removing the need for a separate job queue like Bull.
 -   **Alternatives Considered**:
-    -   **RabbitMQ/Kafka**: More complex than needed for the MVP.
-    -   **In-memory cache**: Not persistent or scalable.
+    -   **RabbitMQ/Kafka**: Overkill for this project.
+    -   **In-memory cache**: Not persistent or scalable if caching needs grow.
 
 ## 9. Package Manager
 
@@ -99,7 +97,7 @@ This document outlines the decisions made to resolve technical ambiguities in th
 
 ## 10. API Documentation
 
--   **Decision**: We will use **Swagger (OpenAPI)** for generating and serving API documentation.
+-   **Decision**: We will use **Swagger (OpenAPI)** for generating and serving API documentation for the NestJS backend's REST API (for client-backend communication).
 -   **Rationale**:
     -   Swagger provides interactive, machine-readable documentation that can be auto-generated from code in NestJS.
 -   **Alternatives Considered**:
@@ -117,3 +115,41 @@ This document outlines the decisions made to resolve technical ambiguities in th
 -   **Alternatives Considered**:
     -   **Session-based authentication**: This is a stateful approach that requires server-side storage for session data, which adds complexity and does not scale as easily as a stateless JWT approach.
     -   **API Keys**: More suitable for machine-to-machine communication rather than user-based authentication.
+
+## 12. AI Service Architecture
+
+-   **Decision**: 
+    -   The `packages/ai-service` will be developed as a separate, long-running service (**Sidecar pattern**).
+    -   The NestJS backend will communicate with it via a direct **Inter-Process Communication (IPC)** channel, sending and receiving newline-delimited JSON messages over `stdin`/`stdout`.
+    -   **ChromaDB** will be used as the vector database for storing and querying embeddings.
+    -   **`faster-whisper`** will be used for speech-to-text transcription.
+    -   **`gte-small`** or **`BGE-M3-small`** will be used for generating vector embeddings from transcript segments.
+-   **Rationale**:
+    -   A **Sidecar** architecture decouples the AI processing from the main backend, allowing them to be developed, deployed, and scaled independently. This aligns with **Constitution Principle IV (Performance by Design)**.
+    -   A direct **IPC channel** provides the lowest-latency communication and simplifies the architecture by removing the need for an HTTP server in the AI service, which is ideal for a tightly-coupled desktop application environment.
+    -   **ChromaDB** is a specialized vector database designed for similarity search, making it a perfect fit for the semantic search feature.
+    -   `gte-small` and `BGE-M3-small` are efficient and high-performing embedding models suitable for this use case.
+-   **Workflow**:
+    1.  The NestJS backend receives an audio file, saves it, and updates the `AudioFile` status to `PROCESSING`.
+    2.  The backend sends a `transcribe` request message to the `ai-service` via its `stdin`.
+    3.  The `ai-service` receives the message, uses `faster-whisper` to transcribe the audio, and generates embeddings for each segment.
+    4.  The `ai-service` calls the NestJS backend API to save the transcript segments to the SQLite database.
+    5.  The `ai-service` saves the embeddings and corresponding segment IDs to **ChromaDB**.
+    6.  Upon completion, the `ai-service` sends a `transcribe_response` message to the backend via `stdout`.
+    7.  The backend receives the response and updates the `AudioFile` status to `PROCESSED` or `ERROR`.
+-   **Search Workflow**:
+    1.  A user initiates a search from the client.
+    2.  The NestJS backend receives the search query.
+    3.  The backend sends a `search` request message to the `ai-service` via `stdin`.
+    4.  The `ai-service` generates an embedding for the query, searches ChromaDB, and gets a list of matching segment IDs.
+    5.  The `ai-service` sends a `search_response` message with the IDs back to the backend via `stdout`.
+    6.  The backend fetches the full segment details from the SQLite database and returns them to the client.
+
+## 13. Overall Application Architecture
+
+-   **Decision**: We will adopt a **hybrid client-server model** that supports both convenient web-based development and a self-contained production Electron application.
+-   **Rationale**: This approach provides the best of both worlds: a clean separation of concerns and a fast development loop using standard web tools, while delivering a seamless, "it-just-works" experience for the end-user of the desktop application. It also keeps the architecture flexible for a potential web-based client in the future.
+-   **Operating Modes**:
+    1.  **Development Mode**: The `backend` (NestJS) and `ai-service` (Python) are run as independent processes. The React UI is served in a standard web browser and communicates with the services over HTTP, allowing for hot-reloading and rapid development.
+    2.  **Production (Electron) Mode**: The final Electron application will package the `backend` and `ai-service` builds. Upon application startup, the Electron main process will be responsible for spawning and managing these services as background child processes. The React UI, running in the Electron renderer process, communicates with the `backend` via standard HTTP requests to `localhost`. The `backend` then communicates with the `ai-service` via IPC.
+-   **Implementation Strategy**: The frontend does not require a complex adapter. It will always communicate with the backend via HTTP. In development, this will be to a port on `localhost`. In production, the Electron main process will ensure the backend is running on a known local port that the UI can call.
