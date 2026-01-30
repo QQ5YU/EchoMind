@@ -59,9 +59,8 @@ model TranscriptSegment {
   id           String     @id @default(uuid())
   transcriptId String     @map("transcript_id")
   text         String
-  startTime    Int        @map("start_time")
-  endTime      Int        @map("end_time")
-  embedding    Bytes?
+  startTime    Float        @map("start_time")
+  endTime      Float        @map("end_time")
   transcript   Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
 
   @@map("transcript_segments")
