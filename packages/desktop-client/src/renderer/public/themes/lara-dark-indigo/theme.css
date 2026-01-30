@@ -1535,8 +1535,7 @@
   }
   .p-icon-field > .p-input-icon {
     position: absolute;
-    top: 50%;
-    margin-top: -0.5rem;
+    top: 25%;
   }
   .p-fluid .p-icon-field-left,
   .p-fluid .p-icon-field-right {
