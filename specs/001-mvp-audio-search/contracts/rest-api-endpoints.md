@@ -49,16 +49,11 @@ This document defines the RESTful API endpoints provided by the NestJS backend. 
 ### `POST /audio`
 
 -   **Description**: Uploads a new audio file for processing for the authenticated user.
--   **Request Body**: `multipart/form-data` with a `file`.
+-   **Request Body**: `multipart/form-data` with a `file` and an optional `folderId` string.
 -   **Response**: `201 Created`
     -   **Body**: The `AudioFile` object.
 
-### `POST /audio/bulk`
 
--   **Description**: Uploads multiple audio files for processing for the authenticated user.
--   **Request Body**: `multipart/form-data` with an array of `files`.
--   **Response**: `201 Created`
-    -   **Body**: An array of `AudioFile` objects.
 
 ### `GET /audio`
 
@@ -71,6 +66,18 @@ This document defines the RESTful API endpoints provided by the NestJS backend. 
 -   **Description**: Retrieves a single audio file by its ID. The user must be the owner of the file.
 -   **Response**: `200 OK` or `404 Not Found`.
     -   **Body**: The `AudioFile` object.
+
+### `DELETE /audio/{id}`
+
+-   **Description**: Deletes a single audio file by its ID. The user must be the owner of the file.
+-   **Response**: `200 OK`
+    -   **Body**: `{ "id": "deleted-audio-file-id" }`
+
+### `GET /audio/{id}/file`
+
+-   **Description**: Streams the audio file content by its ID. The user must be the owner of the file. Supports range requests.
+-   **Response**: `200 OK` (full content) or `206 Partial Content` (range request)
+    -   **Body**: Audio file stream.
 
 ## File Management (Protected)
 
@@ -95,16 +102,13 @@ This document defines the RESTful API endpoints provided by the NestJS backend. 
 -   **Response**: `201 Created`
     -   **Body**: The created `Folder` object.
 
-### `PUT /audio/{id}/folder`
+### `DELETE /folders/{id}`
 
--   **Description**: Moves an audio file to a different folder.
--   **Request Body**:
-    ```json
-    {
-      "folderId": "destination-folder-id"
-    }
-    ```
--   **Response**: `200 OK`.
+-   **Description**: Deletes a folder by its ID. The user must be the owner of the folder.
+-   **Response**: `200 OK`
+    -   **Body**: `{ "id": "deleted-folder-id" }`
+
+
 
 ## Transcripts (Protected)
 

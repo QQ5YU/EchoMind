@@ -41,8 +41,8 @@ Run the Prisma command to set up the SQLite database and generate the Prisma cli
 
 ```bash
 # From the project root
-pnpm prisma db push --schema=./packages/backend/src/prisma/schema.prisma
-pnpm prisma generate --schema=./packages/backend/src/prisma/schema.prisma
+pnpm prisma db push --schema=./packages/backend/prisma/schema.prisma
+pnpm prisma generate --schema=./packages/backend/prisma/schema.prisma
 ```
 *Note: pnpm can directly run binaries from `node_modules`, so `npx` is not needed.*
 

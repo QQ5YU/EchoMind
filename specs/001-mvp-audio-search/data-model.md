@@ -9,11 +9,16 @@ Represents a registered user of the application.
 -   **Fields**:
     -   `id` (Primary Key, UUID): Unique identifier for the user.
     -   `email` (Text, Not Null, Unique): The user's email address, used for login.
+    -   `name` (Text, Nullable): The user's name.
+    -   `avatarPath` (Text, Nullable): The path to the user's avatar image.
+    -   `avatarUpdatedAt` (Timestamp, Nullable): The timestamp when the avatar was last updated.
     -   `password_hash` (Text, Not Null): The user's hashed password.
     -   `created_at` (Timestamp, Not Null): The date and time the user registered.
 
 -   **Relationships**:
     -   Has many `AudioFile` records.
+    -   Has many `Folder` records.
+    -   Has many `UserSetting` records.
 
 ## Entity: AudioFile
 
@@ -25,7 +30,7 @@ Represents an audio recording uploaded by a user.
     -   `folder_id` (Foreign Key, UUID, Nullable): A reference to the `Folder` it belongs to.
     -   `file_name` (Text, Not Null): The original name of the uploaded audio file.
     -   `file_path` (Text, Not Null): The absolute path to the stored audio file on the user's local disk.
-    -   `status` (Text, Not Null): The current processing status of the file.
+    -   `status` (Enum, Not Null): The current processing status of the file (`PENDING`, `PROCESSING`, `PROCESSED`, `ERROR`).
     -   `created_at` (Timestamp, Not Null): The date and time when the file was uploaded.
     -   `updated_at` (Timestamp, Not Null): The date and time when the record was last updated.
 
@@ -40,8 +45,8 @@ Represents the full transcribed text content of a single `AudioFile`.
 
 -   **Fields**:
     -   `id` (Primary Key, UUID): Unique identifier for the transcript.
-    -   `audio_file_id` (Foreign Key, UUID, Not Null): A reference to the `AudioFile` it belongs to.
-    -   `language` (Text): The language the transcription was performed in.
+    -   `audio_file_id` (Foreign Key, UUID, Not Null, Unique): A reference to the `AudioFile` it belongs to.
+    -   `language` (Text, Nullable): The language the transcription was performed in.
 
 -   **Relationships**:
     -   Belongs to one `AudioFile`.
@@ -55,9 +60,8 @@ Represents a small, contiguous portion of a transcript with associated timing an
     -   `id` (Primary Key, UUID): Unique identifier for the segment.
     -   `transcript_id` (Foreign Key, UUID, Not Null): A reference to the `Transcript` it belongs to.
     -   `text` (Text, Not Null): The transcribed text of the segment.
-    -   `start_time` (Integer, Not Null): The start time of the segment in seconds.
-    -   `end_time` (Integer, Not Null): The end time of the segment in seconds.
-    -   `embedding` (Vector, Nullable): The vector embedding of the `text` field for semantic search. Note: For the MVP, this will be stored in SQLite, but it may be moved to a dedicated vector database in the future.
+    -   `start_time` (Float, Not Null): The start time of the segment in seconds.
+    -   `end_time` (Float, Not Null): The end time of the segment in seconds.
 
 -   **Relationships**:
     -   Belongs to one `Transcript`.
@@ -94,6 +98,7 @@ Stores key-value preferences for a user.
 
 ## State Transitions (AudioFile Status)
 
--   On upload: `pending` -> `processing`
--   On successful transcription: `processing` -> `processed`
--   On failed transcription: `processing` -> `error`
+-   On upload: `PENDING`
+-   Transcription started: `PROCESSING`
+-   On successful transcription: `PROCESSED`
+-   On failed transcription: `ERROR`
