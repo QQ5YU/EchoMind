@@ -46,9 +46,9 @@ export const fileSystemApi = {
     const formData = new FormData();
     formData.append("file", file);
 
-    // Note: `folderId` parameter added here as an API change.
-    // Implementation to append `folderId` to FormData will be
-    // introduced in a follow-up commit.
+    if (folderId) {
+      formData.append("folderId", folderId);
+    }
 
     const { data } = await api.post<AudioFileDto>("/api/audio", formData, {
       headers: {
