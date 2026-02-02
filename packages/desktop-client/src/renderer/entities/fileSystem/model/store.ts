@@ -3,7 +3,9 @@ import { FileNode, FolderNode } from "./types";
 import { fileSystemApi } from "../api/fileSystemApi";
 import { toastService } from "@shared/utils";
 import { ToastSeverity } from "@renderer/shared/config";
-import { getErrorMessage } from "@renderer/shared";
+import { getErrorMessage, socketClient } from "@renderer/shared";
+import { AudioStatus } from "@echomind/shared";
+import { logger } from "@renderer/shared/utils/logger";
 
 interface FileSystemState {
   folders: FolderNode[];
@@ -15,9 +17,10 @@ interface FileSystemState {
   uploadFile: (file: File, folderId?: string | null) => Promise<void>;
   deleteFolder: (id: string) => Promise<void>;
   deleteFile: (id: string) => Promise<void>;
+  initializeStoreListeners: () => () => void;
 }
 
-export const useFileSystemStore = create<FileSystemState>((set) => ({
+export const useFileSystemStore = create<FileSystemState>((set, get) => ({
   folders: [],
   files: [],
   isLoading: false,
@@ -105,5 +108,26 @@ export const useFileSystemStore = create<FileSystemState>((set) => ({
     } catch (err) {
       getErrorMessage(err, "Failed to delete file");
     }
+  },
+
+  initializeStoreListeners: () => {
+    logger.debug("Store: Setting up Socket.IO listeners...");
+    const handleAudioUpdate = (payload: {
+      id: string;
+      status: AudioStatus;
+    }) => {
+      const currentFiles = get().files;
+      const updatedFiles = currentFiles.map((file) =>
+        file.id === payload.id ? { ...file, status: payload.status } : file,
+      );
+
+      set({ files: updatedFiles });
+    };
+
+    socketClient.on("audio.updated", handleAudioUpdate);
+
+    return () => {
+      socketClient.off("audio.updated", handleAudioUpdate);
+    };
   },
 }));
