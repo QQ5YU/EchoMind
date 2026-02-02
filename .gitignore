@@ -146,4 +146,9 @@ packages/backend/storage/*
 
 # Local development SQLite DB
 packages/backend/dev.db
-packages/backend/prisma/dev.db
+
+#python
+.venv/
+__pycache__/
+*.pyc
+.mypy_cache

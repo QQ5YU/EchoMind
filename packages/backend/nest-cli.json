@@ -12,9 +12,10 @@
     ],
     "assets": [
       {
-        "include": ".env",
-        "outDir": "dist/"
+        "include": "../storage/**/*",
+        "outDir": "./dist/storage"
       }
-    ]
+    ],
+    "watchAssets": true
   }
 }

@@ -1,9 +1,5 @@
 import React from "react";
-
-export interface TranscriptSegment {
-  start: number;
-  text: string;
-}
+import { TranscriptSegment } from "@renderer/entities/transcript";
 
 interface TranscriptViewerProps {
   segments: TranscriptSegment[];

@@ -37,6 +37,8 @@ export const setupResponseInterceptor = (
   api.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: unknown) => {
+      let errorTimeout = null;
+
       if (!isAxiosError(error)) {
         return Promise.reject(error);
       }
@@ -67,11 +69,17 @@ export const setupResponseInterceptor = (
             axiosError.config &&
             !axiosError.config.url?.includes("/auth/login")
           ) {
-            notification.show(
-              ToastSeverity.ERROR,
-              "Session expired. Please log in again.",
-            );
-            onUnauthorized();
+            if (!errorTimeout) {
+              notification.show(
+                ToastSeverity.ERROR,
+                "Session expired. Please log in again.",
+              );
+              onUnauthorized();
+
+              errorTimeout = setTimeout(() => {
+                errorTimeout = null
+              }, 500);
+            }
           }
           break;
 

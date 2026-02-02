@@ -6,7 +6,7 @@ import { APP_CONTROLLERS } from "../backend/constants";
 import {
   ExceptionResponseAdapter,
   ErrorLoggerService,
-} from "@backend/core/error-handling";
+} from "@core/error-handling";
 
 export function setupApiHandlers(nestApp: INestApplicationContext) {
   const dispatcher = new IpcDispatcher(nestApp);

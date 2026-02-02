@@ -3,6 +3,7 @@ import { FileNode } from "../model/types";
 import { AudioStatus } from "@echomind/shared";
 
 interface FileCardProps {
+  key: string;
   file: FileNode;
   onClick: (id: string) => void;
   onDelete: (id: string) => void;

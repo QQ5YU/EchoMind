@@ -4,6 +4,7 @@ import { ExceptionResponseAdapter } from './error-handling/exception-response.ad
 import { GlobalExceptionFilter } from './error-handling/global-exception.filter';
 import { ErrorLoggerService } from './error-handling/error-logger.service';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { EventsModule } from './events/events.module';
 import {
   ERROR_STRATEGY,
   NestHttpErrorStrategy,
@@ -16,6 +17,7 @@ import {
 
 @Global()
 @Module({
+  imports: [EventsModule],
   providers: [
     {
       provide: APP_PIPE,

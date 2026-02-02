@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { MainLayout } from "@shared/ui";
 import { Sidebar } from "@widgets/Sidebar";
 import { UserMenu } from "@widgets/UserMenu";

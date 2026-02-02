@@ -21,6 +21,16 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        "/socket.io": {
+          target: env.BACKEND_URL || "http://localhost:3000",
+          changeOrigin: true,
+          ws: true,
+          secure: false,
+          headers: {
+            Connection: "Upgrade",
+            Upgrade: "websocket",
+          },
+        },
       },
     },
     resolve: {

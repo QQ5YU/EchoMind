@@ -1,6 +1,7 @@
 {
   "name": "echomind",
   "private": true,
+  "author": "Mercy <cicoeee91@gmail.com>",
   "scripts": {
     "dev": "pnpm -r --parallel run dev",
     "start": "pnpm --filter backend start:dev & pnpm --filter desktop-client dev:web",
@@ -35,6 +36,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.1",
-    "joi": "^18.0.2"
+    "joi": "^18.0.2",
+    "socket.io-client": "^4.8.3"
   }
 }

@@ -1,72 +1,38 @@
-import React, { useState } from "react";
-import { MainLayout } from "@shared/ui";
-import { UserMenu } from "@widgets/UserMenu";
-import { Button } from "primereact/button";
-import {
-  TranscriptViewer,
-  TranscriptSegment,
-} from "@features/playback/ui/TranscriptViewer";
-import { AudioPlayer } from "@features/playback/ui/AudioPlayer";
+import React, { useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAudioPlayer, usePlaybackData } from "@features/playback";
+import { getAudioStreamUrl } from "@renderer/entities/audio";
+import { PlaybackView } from "./ui/PlaybackView";
 
 export const PlaybackPage: React.FC = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-  const segments: TranscriptSegment[] = [
-    { start: 0, text: "Welcome to this recording about EchoMind." },
-    {
-      start: 5,
-      text: "In this session, we will demonstrate the semantic search capabilities.",
-    },
-    {
-      start: 12,
-      text: "Users can find specific moments in their audio files very easily.",
-    },
-    {
-      start: 18,
-      text: "Clicking on any part of this text will jump the audio to that position.",
-    },
-  ];
+  const { fileName, segments } = usePlaybackData(id);
+  const { isPlaying, currentTime, duration, togglePlay, seek } = useAudioPlayer(
+    id ? getAudioStreamUrl(id) : undefined,
+  );
+
+  const handleBack = useCallback(() => navigate(-1), [navigate]);
+  const handleExport = useCallback(() => {
+    console.log("Export functionality not implemented yet");
+  }, []);
 
   return (
-    <MainLayout headerRight={<UserMenu />}>
-      <div className="flex flex-col h-full max-w-6xl mx-auto gap-6">
-        <header className="flex items-center justify-between">
-          <div>
-            <Button
-              icon="pi pi-arrow-left"
-              className="p-button-text mb-2 dark:text-gray-300"
-              label="Back to Files"
-              onClick={() => window.history.back()}
-            />
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-              Meeting_Notes_1.mp3
-            </h1>
-          </div>
-          <Button
-            label="Export Transcript"
-            icon="pi pi-download"
-            severity="secondary"
-            className="dark:text-white"
-          />
-        </header>
-
-        <div className="flex-1 flex gap-6 overflow-hidden">
-          <TranscriptViewer
-            segments={segments}
-            currentTime={currentTime}
-            onSegmentClick={setCurrentTime}
-          />
-
-          <AudioPlayer
-            currentTime={currentTime}
-            duration={30}
-            isPlaying={isPlaying}
-            onPlayPause={() => setIsPlaying(!isPlaying)}
-            onSeek={setCurrentTime}
-          />
-        </div>
-      </div>
-    </MainLayout>
+    <PlaybackView
+      fileName={fileName}
+      segments={segments}
+      playerState={{
+        isPlaying,
+        currentTime,
+        duration,
+      }}
+      actions={{
+        onBack: handleBack,
+        onTogglePlay: togglePlay,
+        onSeek: seek,
+        onExport: handleExport,
+      }}
+    />
   );
 };

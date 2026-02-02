@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { isAxiosError } from "axios";
-import { ApiError } from "@renderer/shared/api/types";
+import { ApiErrorResponse } from "@renderer/shared/api/types";
 import { useAuthStore } from "@entities/user/model/store";
 import { userApi } from "@entities/user/api/userApi";
 import { RegisterFormData } from "../ui/RegisterForm";
@@ -29,7 +29,7 @@ export const useRegister = () => {
           throw new Error("Invalid server response");
         }
       } catch (err) {
-        if (isAxiosError<ApiError>(err)) {
+        if (isAxiosError<ApiErrorResponse>(err)) {
           if (err.response) {
             const { status, data } = err.response;
             if (status === 409) {
@@ -37,9 +37,10 @@ export const useRegister = () => {
                 email: "Email already exists. Please use another one.",
               });
             } else {
-              setError(
-                data?.message || "Registration failed. Please try again."
-              );
+              const message = Array.isArray(data?.message)
+                ? data.message.join(", ")
+                : data?.message;
+              setError(message || "Registration failed. Please try again.");
             }
             return false;
           }
@@ -51,7 +52,7 @@ export const useRegister = () => {
         setIsLoading(false);
       }
     },
-    [setAuth]
+    [setAuth],
   );
 
   return { register, error, fieldErrors, isLoading };

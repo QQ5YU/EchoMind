@@ -25,8 +25,11 @@ export const ipcAdapter: AxiosAdapter = async (config) => {
     );
 
     if ("error" in response && response.error === true) {
+      const message = Array.isArray(response.data.message)
+        ? response.data.message.join(", ")
+        : response.data.message;
       throw new AxiosError(
-        response.data.message || "Request failed",
+        message || "Request failed",
         String(response.status),
         config,
         undefined,

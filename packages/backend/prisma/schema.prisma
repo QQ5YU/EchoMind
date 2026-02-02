@@ -1,8 +1,8 @@
 enum AudioStatus {
-  PENDING    @map("pending")
-  PROCESSING @map("processing")
-  PROCESSED  @map("processed")
-  ERROR      @map("error")
+  pending
+  processing
+  processed
+  error
 }
 
 generator client {

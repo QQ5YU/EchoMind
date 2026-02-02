@@ -1,6 +1,7 @@
 {
   "name": "@echomind/shared",
   "version": "1.0.0",
+  "author": "Mercy <cicoeee91@gmail.com>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

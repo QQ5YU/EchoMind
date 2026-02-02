@@ -1535,7 +1535,8 @@
   }
   .p-icon-field > .p-input-icon {
     position: absolute;
-    top: 25%;
+    top: 50%;
+    transform: translateY(-50%);
   }
   .p-fluid .p-icon-field-left,
   .p-fluid .p-icon-field-right {
