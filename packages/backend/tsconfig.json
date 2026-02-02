@@ -13,10 +13,64 @@
     "strict": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "paths": {
       "@generated/*": [
         "generated/*"
+      ],
+      "@auth": [
+        "auth"
+      ],
+      "@auth/*": [
+        "auth/*"
+      ],
+      "@user": [
+        "user"
+      ],
+      "@user/*": [
+        "user/*"
+      ],
+      "@audio": [
+        "audio"
+      ],
+      "@audio/*": [
+        "audio/*"
+      ],
+      "@folders": [
+        "folders"
+      ],
+      "@folders/*": [
+        "folders/*"
+      ],
+      "@search": [
+        "search"
+      ],
+      "@search/*": [
+        "search/*"
+      ],
+      "@settings": [
+        "settings"
+      ],
+      "@settings/*": [
+        "settings/*"
+      ],
+      "@transcripts": [
+        "transcripts"
+      ],
+      "@transcripts/*": [
+        "transcripts/*"
+      ],
+      "@ai": [
+        "ai"
+      ],
+      "@ai/*": [
+        "ai/*"
+      ],
+      "@core": [
+        "core"
+      ],
+      "@core/*": [
+        "core/*"
       ]
     },
     "incremental": true,

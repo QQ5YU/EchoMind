@@ -1,20 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AudioController } from './audio.controller';
-import { AudioService } from './application/audio.service';
-import { AudioRepository } from './domain/audio.repository';
+import { AudioService, AudioProcessor } from './application';
+import { AudioRepository } from './domain';
 import { AudioPrismaRepository } from './infrastructure/audio.prisma.repository';
-import { BullModule } from '@nestjs/bull';
-import { AudioProcessor } from './application/audio.processor';
-import { TranscriptsModule } from '../transcripts/transcripts.module';
+import { TranscriptsModule } from '@transcripts';
+import { AiProcessModule } from '@ai/ai.process.module';
+import { EventsModule } from '@core/events';
 
 @Module({
-  imports: [
-    BullModule.registerQueue({
-      name: 'audio-transcription',
-    }),
-    TranscriptsModule,
-  ],
+  imports: [TranscriptsModule, AiProcessModule, EventsModule],
   controllers: [AudioController],
+
   providers: [
     AudioService,
     AudioProcessor,

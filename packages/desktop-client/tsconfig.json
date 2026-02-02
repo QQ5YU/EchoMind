@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "types": [
+      "vite/client"
+    ],
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": [
@@ -25,6 +28,63 @@
     "paths": {
       "@backend/*": [
         "../backend/src/*"
+      ],
+      "@backend-core/*": [
+        "../backend/src/core/*"
+      ],
+      "@core": [
+        "../backend/src/core"
+      ],
+      "@core/*": [
+        "../backend/src/core/*"
+      ],
+      "@auth": [
+        "../backend/src/auth"
+      ],
+      "@auth/*": [
+        "../backend/src/auth/*"
+      ],
+      "@transcripts": [
+        "../backend/src/transcripts"
+      ],
+      "@transcripts/*": [
+        "../backend/src/transcripts/*"
+      ],
+      "@ai": [
+        "../backend/src/ai"
+      ],
+      "@ai/*": [
+        "../backend/src/ai/*"
+      ],
+      "@user": [
+        "../backend/src/user"
+      ],
+      "@user/*": [
+        "../backend/src/user/*"
+      ],
+      "@audio": [
+        "../backend/src/audio"
+      ],
+      "@audio/*": [
+        "../backend/src/audio/*"
+      ],
+      "@folders": [
+        "../backend/src/folders"
+      ],
+      "@folders/*": [
+        "../backend/src/folders/*"
+      ],
+      "@search": [
+        "../backend/src/search"
+      ],
+      "@search/*": [
+        "../backend/src/search/*"
+      ],
+      "@settings": [
+        "../backend/src/settings"
+      ],
+      "@settings/*": [
+        "../backend/src/settings/*"
       ],
       "@echomind/shared": [
         "../shared/src"

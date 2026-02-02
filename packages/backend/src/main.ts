@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { readFileSync } from 'fs';
 import * as swaggerUi from 'swagger-ui-express';
@@ -16,7 +17,7 @@ async function bootstrap() {
   app.use('/doc', swaggerUi.serve, swaggerUi.setup(doc));
 
   await app.listen(process.env.PORT ?? 3000).then(() => {
-    console.log(`backend running in port ${process.env.PORT ?? 3000}`);
+    Logger.log(`backend running in port ${process.env.PORT ?? 3000}`);
   });
 }
 

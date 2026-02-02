@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import 'multer';
 import { AudioRepository } from '../domain/audio.repository';
 import { AudioFile } from '../domain/audio.entity';
@@ -6,18 +6,18 @@ import { AudioStatus as DomainAudioStatus } from '@echomind/shared';
 import { AudioFileDto, FileDeleteResponseDto } from '../dto/audio.dto';
 import * as fs from 'fs';
 import * as path from 'path';
-import { InjectQueue } from '@nestjs/bull';
-import type { Queue } from 'bull';
 import {
   EntityNotFoundException,
   InsufficientPermissionException,
-} from '../../core/error-handling/exceptions/application.exception';
+} from '@core/error-handling';
+import { AudioProcessor } from './audio.processor';
 
 @Injectable()
 export class AudioService {
+  private readonly logger = new Logger(AudioService.name);
   constructor(
     private readonly audioRepository: AudioRepository,
-    @InjectQueue('audio-transcription') private audioQueue: Queue,
+    private readonly audioProcessor: AudioProcessor,
   ) {}
 
   async uploadFile(
@@ -25,13 +25,13 @@ export class AudioService {
     file: Express.Multer.File,
     folderId: string | null,
   ): Promise<AudioFileDto> {
-    const storageDir = path.resolve(__dirname, '../../../storage/audio');
+    const storageDir = path.resolve(process.cwd(), 'storage', 'audios');
     if (!fs.existsSync(storageDir)) {
       fs.mkdirSync(storageDir, { recursive: true });
     }
 
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const filename = `${uniqueSuffix}-${file.originalname}`;
+    const filename = `${uniqueSuffix}-${Buffer.from(file.originalname, 'latin1').toString('utf8')}`;
     const filePath = path.join(storageDir, filename);
 
     fs.writeFileSync(filePath, file.buffer);
@@ -39,20 +39,22 @@ export class AudioService {
     try {
       const audioFile = await this.audioRepository.create({
         userId,
-        fileName: file.originalname,
+        fileName: Buffer.from(file.originalname, 'latin1').toString('utf8'),
         filePath,
         status: DomainAudioStatus.PENDING,
         folderId,
       });
+
+      await this.audioProcessor.addTranscribeJob(audioFile.id, filePath);
 
       return this.toAudioFileDto(audioFile);
     } catch (error) {
       if (fs.existsSync(filePath)) {
         try {
           fs.unlinkSync(filePath);
-          console.log(`[Rollback] Deleted orphaned file: ${filePath}`);
+          this.logger.log(`[Rollback] Deleted orphaned file: ${filePath}`);
         } catch (unlinkError) {
-          console.error(
+          this.logger.error(
             `[Rollback Failed] Could not delete file: ${filePath}`,
             unlinkError,
           );

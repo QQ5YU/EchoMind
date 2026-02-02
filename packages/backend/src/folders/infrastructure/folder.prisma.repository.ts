@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/prisma/prisma.service';
-import { Folder } from '../domain/folder.entity';
-import { FolderRepository } from '../domain/folder.repository';
+import { PrismaService } from '@core/prisma';
+import { Folder, FolderRepository } from '../domain';
 import { Prisma } from '@prisma/client';
 import {
   DuplicateEntityException,
   EntityNotFoundException,
-} from '../../core/error-handling/exceptions/application.exception';
+} from '@core/error-handling';
 
 @Injectable()
 export class FolderPrismaRepository implements FolderRepository {

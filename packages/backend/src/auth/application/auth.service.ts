@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { RegisterDto } from '../dto/auth.dto';
 import { User } from '../../user/domain/user.entity';
 import { AuthResponseDto } from '@echomind/shared';
-import { DuplicateEntityException } from '../../core/error-handling/exceptions/application.exception';
+import { DuplicateEntityException } from '@core/error-handling';
 import { UserMapper } from '../../user/user.mapper';
 
 @Injectable()

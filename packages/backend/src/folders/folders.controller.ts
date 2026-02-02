@@ -7,11 +7,10 @@ import {
   Request,
   Delete,
   Param,
-  BadRequestException,
 } from '@nestjs/common';
 import { FoldersService } from './application/folders.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import type { RequestWithUser } from '../auth/types/request-with-user.interface';
+import { JwtAuthGuard } from '@auth/guards';
+import type { RequestWithUser } from '@auth/types/request-with-user.interface';
 import {
   CreateFolderDto,
   FolderDeleteResponseDto,

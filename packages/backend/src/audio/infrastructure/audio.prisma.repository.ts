@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/prisma/prisma.service';
-import { AudioFile } from '../domain/audio.entity';
-import { AudioRepository } from '../domain/audio.repository';
+import { PrismaService } from '@core/prisma';
+import { AudioFile, AudioRepository } from '../domain';
 import { AudioStatus as DomainAudioStatus } from '@echomind/shared';
-import { AudioStatus as PrismaAudioStatus } from '../../../generated/prisma/enums';
 import { Prisma } from '@prisma/client';
-import { EntityNotFoundException } from '../../core/error-handling/exceptions/application.exception';
+import { EntityNotFoundException } from '@core/error-handling';
 
 @Injectable()
 export class AudioPrismaRepository implements AudioRepository {
@@ -19,7 +17,7 @@ export class AudioPrismaRepository implements AudioRepository {
         userId: audioFile.userId,
         fileName: audioFile.fileName,
         filePath: audioFile.filePath,
-        status: audioFile.status.toUpperCase() as PrismaAudioStatus,
+        status: audioFile.status,
         folderId: audioFile.folderId,
       },
     });
@@ -81,7 +79,7 @@ export class AudioPrismaRepository implements AudioRepository {
   ): Promise<AudioFile> {
     const updated = await this.prisma.audioFile.update({
       where: { id },
-      data: { status: status as PrismaAudioStatus },
+      data: { status: status },
     });
     return new AudioFile({
       ...updated,

@@ -15,18 +15,17 @@ import {
   Param,
   Res,
   StreamableFile,
-  Query,
 } from '@nestjs/common';
 import { UserService } from './application/user.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@auth/guards';
 import { UserDto, UpdateUserDto } from './dto/user.dto';
-import { EntityNotFoundException } from '../core/error-handling/exceptions/application.exception';
-import { RequestWithUser } from '../auth/types/request-with-user.interface';
+import { EntityNotFoundException } from '@core/error-handling';
+import type { RequestWithUser } from '@auth/types/request-with-user.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import type { Response } from 'express';
 import * as path from 'path';
-import { StorageService } from '../core/storage/storage.service';
-import { generateETag } from '../core/utils/etag';
+import { StorageService } from '@core/storage';
+import { generateETag } from '@core/utils/etag';
 import { UserMapper } from './user.mapper';
 
 @Controller('user')

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/prisma/prisma.service';
-import { User } from '../domain/user.entity';
-import { UserRepository } from '../domain/user.repository';
+import { PrismaService } from '@core/prisma';
+import { User, UserRepository } from '../domain';
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
@@ -15,7 +14,7 @@ export class UserPrismaRepository implements UserRepository {
         passwordHash: user.passwordHash,
       },
     });
-    
+
     return new User({
       ...createdUser,
       name: createdUser.name ?? undefined,
@@ -29,7 +28,7 @@ export class UserPrismaRepository implements UserRepository {
     });
 
     if (!user) return null;
-    
+
     return new User({
       ...user,
       name: user.name ?? undefined,

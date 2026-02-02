@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { FolderRepository } from '../domain/folder.repository';
-import { Folder } from '../domain/folder.entity';
+import { FolderRepository, Folder } from '../domain';
 import { FolderDeleteResponseDto, FolderDto } from '../dto/folders.dto';
-import { DuplicateEntityException } from 'src/core/error-handling';
+import { DuplicateEntityException } from '@core/error-handling';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

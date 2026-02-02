@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppService } from './app.service';
-import { PrismaModule } from './core/prisma/prisma.module';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { AudioModule } from './audio/audio.module';
-import { FoldersModule } from './folders/folders.module';
-import { SearchModule } from './search/search.module';
-import { SettingsModule } from './settings/settings.module';
+import { PrismaModule } from '@core/prisma';
+import { AuthModule } from '@auth';
+import { UserModule } from '@user';
+import { AudioModule } from '@audio';
+import { FoldersModule } from '@folders';
+import { SearchModule } from '@search';
+import { SettingsModule } from '@settings';
 
 @Module({
   imports: [

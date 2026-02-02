@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../core/prisma/prisma.service';
+import { PrismaService } from '@core/prisma';
 import { Transcript, TranscriptSegment } from '../domain/transcript.entity';
-import { TranscriptRepository, SearchResult } from '../domain/transcript.repository';
+import {
+  TranscriptRepository,
+  SearchResult,
+} from '../domain/transcript.repository';
 
 @Injectable()
 export class TranscriptPrismaRepository implements TranscriptRepository {
