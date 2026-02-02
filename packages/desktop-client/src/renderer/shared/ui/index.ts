@@ -1,3 +1,2 @@
-export * from "./layouts/CenterCardLayout";
-export * from "./layouts/MainLayout";
+export * from "./layouts";
 export * from "./loader/WaveLoader";
